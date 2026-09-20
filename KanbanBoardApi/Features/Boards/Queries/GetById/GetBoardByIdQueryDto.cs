@@ -1,5 +1,4 @@
-﻿using KanbanBoardApi.Domain.Entities;
-
+﻿
 namespace KanbanBoardApi.Features.Boards.Queries.GetById
 {
     public class GetBoardByIdQueryDto
@@ -8,6 +7,12 @@ namespace KanbanBoardApi.Features.Boards.Queries.GetById
         public string Title { get; set; }
         public string OwnerId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public List<Column> Columns { get; set; }
+        public List<ColumnDto> Columns { get; set; }
+    }
+    public sealed class ColumnDto
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public int Order { get; set; }
     }
 }

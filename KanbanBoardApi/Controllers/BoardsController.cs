@@ -1,5 +1,7 @@
 ﻿using KanbanBoardApi.Features.Boards.Commands.Create;
 using KanbanBoardApi.Features.Boards.Queries.GetById;
+using KanbanBoardApi.Features.Boards.Queries.List;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +24,13 @@ namespace KanbanBoardApi.Controllers
             var query = new GetBoardByIdQuery { Id = id };
             var dto = await mediator.Send(query, ct);
             return Ok(dto);
+        }
+
+        [HttpGet]
+        public async Task<PageResult<ListBoardsQueryDto>> List([FromQuery] ListBoardsQuery query, CancellationToken ct)
+        {
+            var result = await mediator.Send(query, ct);
+            return result;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace KanbanBoardApi.Features.Boards.Queries.GetById
     {
         public async Task<GetBoardByIdQueryDto> Handle (GetBoardByIdQuery request, CancellationToken ct)
         {
-            var q = ctx.Boards
+            var q = ctx.Boards.AsNoTracking()
             .Where(c => c.Id == request.Id);
 
             var dto = await q
@@ -18,7 +18,7 @@ namespace KanbanBoardApi.Features.Boards.Queries.GetById
                 Title = x.Title,
                 OwnerId = x.OwnerId,
                 CreatedAt = x.CreatedAt,
-                Columns = x.Columns,
+                Columns = x.Columns.Select(c => new ColumnDto { Id = c.Id, Title = c.Title, Order = c.Order }).ToList()
             })
             .FirstOrDefaultAsync(ct);
 
