@@ -5,6 +5,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CardApiService } from '../../../api-services/cards/card-api-service';
 
 
+export interface CardFormData {
+  columnId: string;       // uvijek treba, za create i kontekst
+  card?: {                // prisutno samo u edit modu
+    id: string;
+    title: string;
+    description: string | null;
+    version: number;
+  };
+}
+
 @Component({
   selector: 'app-card-form',
   imports: [ReactiveFormsModule],
@@ -14,12 +24,14 @@ import { CardApiService } from '../../../api-services/cards/card-api-service';
 export class CardForm {
   private fb = inject(FormBuilder);
   private cardApi = inject(CardApiService);
-  private data = inject<{ columnId: string }>(DIALOG_DATA);
-  dialogRef = inject(DialogRef<string>); // vraća id nove kartice
+  data = inject<CardFormData>(DIALOG_DATA);
+  dialogRef = inject(DialogRef<{ id: string; version?: number } | undefined>);
+
+  isEditMode = !!this.data.card;
 
   form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(100)]],
-    description: ['', [Validators.maxLength(500)]],
+    title: [this.data.card?.title ?? '', [Validators.required, Validators.maxLength(100)]],
+    description: [this.data.card?.description ?? '', [Validators.maxLength(500)]],
   });
 
   submitting = signal(false);
@@ -35,25 +47,43 @@ export class CardForm {
 
     const raw = this.form.getRawValue();
 
-    this.cardApi.create({
-      title: raw.title,
-      description: raw.description || null,
-      columnId: this.data.columnId,
-    }).subscribe({
-      next: (id) => {
-        this.dialogRef.close(id);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.submitting.set(false);
-        if (err.status === 400 && err.error?.errors) {
-          this.serverErrors.set(err.error.errors);
-        } else if (err.status === 404) {
-          this.conflictMessage.set('Kolona nije pronađena.');
-        } else {
-          this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
-        }
-      }
-    });
+    if (this.isEditMode) {
+      const card = this.data.card!;
+      this.cardApi.update(card.id, {
+        title: raw.title,
+        description: raw.description || null,
+        version: card.version,
+      }).subscribe({
+        next: (newVersion) => {
+          this.dialogRef.close({ id: card.id, version: newVersion });
+        },
+        error: (err: HttpErrorResponse) => this.handleError(err)
+      });
+    } else {
+      this.cardApi.create({
+        title: raw.title,
+        description: raw.description || null,
+        columnId: this.data.columnId,
+      }).subscribe({
+        next: (id) => {
+          this.dialogRef.close({ id });
+        },
+        error: (err: HttpErrorResponse) => this.handleError(err)
+      });
+    }
+  }
+
+  private handleError(err: HttpErrorResponse) {
+    this.submitting.set(false);
+    if (err.status === 400 && err.error?.errors) {
+      this.serverErrors.set(err.error.errors);
+    } else if (err.status === 409) {
+      this.conflictMessage.set('Kartica je izmijenjena od nekog drugog u međuvremenu. Zatvori formu i osvježi board.');
+    } else if (err.status === 404) {
+      this.conflictMessage.set('Kartica ili kolona nije pronađena.');
+    } else {
+      this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
+    }
   }
 
   close() {

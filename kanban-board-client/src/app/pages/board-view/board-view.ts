@@ -84,6 +84,16 @@ export class BoardView implements OnInit {
       if (newId) this.load();
     });
   }
+
+  editCard(columnId: string, card: { id: string; title: string; description: string | null; version: number }) {
+    const ref = this.dialog.open<{ id: string; version?: number } | undefined>(CardForm, {
+      data: { columnId, card }
+    });
+    ref.closed.subscribe((result) => {
+      if (result) this.load();
+    });
+  }
+  
   deleteCard(cardId: string) {
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {

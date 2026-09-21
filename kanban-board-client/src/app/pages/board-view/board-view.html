@@ -19,6 +19,7 @@
             @if (card.description) {
               <p>{{ card.description }}</p>
             }
+            <button type="button" class="edit-btn" (click)="editCard(column.id, card)">✏</button>
             <button type="button" class="delete-btn" (click)="deleteCard(card.id)">🗑</button>
           </div>
         } @empty {
