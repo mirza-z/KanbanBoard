@@ -15,10 +15,13 @@ public sealed class UpdateBoardCommandHandler(KanbanDbContext ctx) : IRequestHan
         if (entity is null)
             throw new NotFoundException($"Board (ID={request.Id}) nije pronađena.");
 
+        var title = request.Title.Trim();
+        var titleLower = title.ToLower();
+
         var exists = await ctx.Boards
             .AnyAsync(x => x.Id != request.Id
                 && x.OwnerId == entity.OwnerId
-                && x.Title.ToLower() == request.Title.ToLower(), ct);
+                && x.Title.ToLower() == titleLower, ct);
 
         if (exists)
         {

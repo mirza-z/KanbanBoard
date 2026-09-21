@@ -28,8 +28,21 @@ public class KanbanDbContext : DbContext
             .HasForeignKey(card => card.ColumnId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Card>()
-            .Property(c => c.Version).IsConcurrencyToken();
+        modelBuilder.Entity<Board>(e =>
+        {
+            e.Property(b => b.Title).HasMaxLength(100);
+            e.Property(b => b.OwnerId).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Column>()
+            .Property(c => c.Title).HasMaxLength(100);
+
+        modelBuilder.Entity<Card>(e =>
+        {
+            e.Property(c => c.Title).HasMaxLength(100);
+            e.Property(c => c.Description).HasMaxLength(500);
+            e.Property(c => c.Version).IsConcurrencyToken();
+        });
 
         base.OnModelCreating(modelBuilder);
     }

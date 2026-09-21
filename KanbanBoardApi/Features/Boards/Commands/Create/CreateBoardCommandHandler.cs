@@ -10,7 +10,10 @@ namespace KanbanBoardApi.Features.Boards.Commands.Create
     {
         public async Task<Guid> Handle(CreateBoardCommand request, CancellationToken ct)
         {
-            var exists = await ctx.Boards.AnyAsync(x => x.Title == request.Title && x.OwnerId == request.OwnerId,ct);
+            var title = request.Title.Trim();
+            var titleLower = title.ToLower();
+
+            var exists = await ctx.Boards.AnyAsync(x => x.Title == titleLower && x.OwnerId == request.OwnerId,ct);
             if (exists)
             {
                 throw new ConflictException("This Board already exists");
