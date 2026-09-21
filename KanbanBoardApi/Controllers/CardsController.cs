@@ -27,6 +27,15 @@ namespace KanbanBoardApi.Controllers
             return NoContent();
         }
 
+        //move
+        [HttpPut("{id:guid}/move")]
+        public async Task<IActionResult> MoveCard(Guid id, [FromBody] MoveCardCommand command, CancellationToken ct)
+        {
+            command.Id = id;
+            var version = await mediator.Send(command, ct);
+            return Ok(new { version });
+        }
+
         //update
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateCard(Guid id, [FromBody] UpdateCardCommand command, CancellationToken ct)
