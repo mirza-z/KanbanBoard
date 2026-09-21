@@ -9,10 +9,10 @@ namespace KanbanBoardApi.Features.Boards.Commands.Create
     {
         public async Task<Guid> Handle(CreateBoardCommand request, CancellationToken ct)
         {
-            var postoji = await ctx.Boards.AnyAsync(x => x.Title == request.Title && x.OwnerId == request.OwnerId,ct);
-            if (postoji)
+            var exists = await ctx.Boards.AnyAsync(x => x.Title == request.Title && x.OwnerId == request.OwnerId,ct);
+            if (exists)
             {
-                throw new Exception("Ovaj Board vec postoji");
+                throw new Exception("This Board already exists");
             }
             var board = new Board
             {
