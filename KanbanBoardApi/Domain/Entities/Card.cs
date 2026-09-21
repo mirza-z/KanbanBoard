@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-
+﻿
 namespace KanbanBoardApi.Domain.Entities;
 
 public class Card
