@@ -1,5 +1,6 @@
 ﻿using KanbanBoardApi.Data;
 using KanbanBoardApi.Features.Boards.Commands.Update;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,14 +16,14 @@ public class UpdateColumnCommandHandler(KanbanDbContext ctx)
 
         var entity = await ctx.Columns.FirstOrDefaultAsync(x => x.Id == request.Id, ct);
         if (entity is null)
-            throw new Exception($"Column with Id {request.Id} not found.");
+            throw new NotFoundException($"Column with Id {request.Id} not found.");
 
         var exists = await ctx.Columns.AnyAsync(x =>
             x.BoardId == entity.BoardId
             && x.Id != request.Id
             && x.Title.ToLower() == titleLower, ct);
         if (exists)
-            throw new Exception("This Column already exists");
+            throw new ConflictException("This Column already exists");
 
         entity.Title = title;
         await ctx.SaveChangesAsync(ct);

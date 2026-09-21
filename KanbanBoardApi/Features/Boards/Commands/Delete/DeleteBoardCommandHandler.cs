@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Data;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ public class DeleteBoardCommandHandler(KanbanDbContext ctx): IRequestHandler<Del
     {
         var board = await ctx.Boards.FirstOrDefaultAsync(x=> x.Id == request.Id, cancellationToken);
 
-        if (board is null) { throw new Exception("Board not found"); }
+        if (board is null) { throw new NotFoundException("Board not found"); }
 
         ctx.Boards.Remove(board);
         await ctx.SaveChangesAsync(cancellationToken);

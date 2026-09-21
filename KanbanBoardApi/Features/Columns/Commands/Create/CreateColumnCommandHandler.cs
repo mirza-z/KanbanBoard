@@ -1,5 +1,6 @@
 ﻿using KanbanBoardApi.Data;
 using KanbanBoardApi.Domain.Entities;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +14,12 @@ namespace KanbanBoardApi.Features.Columns.Commands.Create
 
             var boardExists = await ctx.Boards.AnyAsync(b => b.Id == request.BoardId, ct);
             if (!boardExists)
-                throw new Exception("Board not found");
+                throw new NotFoundException("Board not found");
 
             var exists = await ctx.Columns.AnyAsync(
                 x => x.BoardId == request.BoardId && x.Title == title, ct);
             if (exists)
-                throw new Exception("This Column already exists");
+                throw new ConflictException("This Column already exists");
 
             // (int?) cast jer MaxAsync na praznom setu baca exception
             var maxOrder = await ctx.Columns

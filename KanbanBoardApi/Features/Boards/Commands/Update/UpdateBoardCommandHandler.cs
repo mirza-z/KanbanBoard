@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Data;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ public sealed class UpdateBoardCommandHandler(KanbanDbContext ctx) : IRequestHan
             .Where(x => x.Id == request.Id).FirstOrDefaultAsync(ct);
 
         if (entity is null)
-            throw new Exception($"Board (ID={request.Id}) nije pronađena.");
+            throw new NotFoundException($"Board (ID={request.Id}) nije pronađena.");
 
         var exists = await ctx.Boards
             .AnyAsync(x => x.Id != request.Id
@@ -21,7 +22,7 @@ public sealed class UpdateBoardCommandHandler(KanbanDbContext ctx) : IRequestHan
 
         if (exists)
         {
-            throw new Exception("Title already exists.");
+            throw new ConflictException("Title already exists.");
         }
 
         entity.Title = request.Title.Trim();

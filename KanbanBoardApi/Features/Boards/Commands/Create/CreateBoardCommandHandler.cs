@@ -1,5 +1,6 @@
 ﻿using KanbanBoardApi.Data;
 using KanbanBoardApi.Domain.Entities;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace KanbanBoardApi.Features.Boards.Commands.Create
             var exists = await ctx.Boards.AnyAsync(x => x.Title == request.Title && x.OwnerId == request.OwnerId,ct);
             if (exists)
             {
-                throw new Exception("This Board already exists");
+                throw new ConflictException("This Board already exists");
             }
             var board = new Board
             {

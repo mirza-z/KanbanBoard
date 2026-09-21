@@ -1,5 +1,6 @@
 ﻿using KanbanBoardApi.Data;
 using KanbanBoardApi.Features.Boards.Commands.Delete;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace KanbanBoardApi.Features.Columns.Commands.Delete
         {
             var column = await ctx.Columns.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            if (column is null) { throw new Exception("Column not found"); }
+            if (column is null) { throw new NotFoundException("Column not found"); }
 
             ctx.Columns.Remove(column);
             await ctx.SaveChangesAsync(cancellationToken);

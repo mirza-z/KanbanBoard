@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Data;
+using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,7 @@ namespace KanbanBoardApi.Features.Columns.Queries.GetById
 
             if (dto == null)
             {
-                throw new Exception($"Column with Id {request.Id} not found.");
+                throw new NotFoundException($"Column with Id {request.Id} not found.");
             }
 
             return dto;
