@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Features.Columns.Commands.Create;
+using KanbanBoardApi.Features.Columns.Commands.Delete;
 using KanbanBoardApi.Features.Columns.Queries.GetById;
 using KanbanBoardApi.Features.Columns.Queries.List;
 using KanbanBoardApi.Features.Common;
@@ -17,6 +18,14 @@ namespace KanbanBoardApi.Controllers
         {
             var boardId = await mediator.Send(command, ct);
             return CreatedAtAction(nameof(GetColumnById), new { id = boardId }, boardId);
+        }
+
+        //delete
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteColumn(Guid id, CancellationToken ct)
+        {
+            await mediator.Send(new DeleteColumnCommand { Id = id }, ct);
+            return NoContent();
         }
 
         //getById
