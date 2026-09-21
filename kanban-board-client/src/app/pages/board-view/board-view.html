@@ -5,6 +5,8 @@
 } @else if (board(); as b) {
   <h1>{{ b.title }}</h1>
 
+  <button type="button" (click)="openColumnForm()">+ Nova kolona</button>
+  
   <div class="columns">
     @for (column of b.columns; track column.id) {
       <div class="column">
