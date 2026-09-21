@@ -5,9 +5,7 @@ using KanbanBoardApi.Features.Boards.Queries.GetById;
 using KanbanBoardApi.Features.Boards.Queries.List;
 using KanbanBoardApi.Features.Common;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
 
 namespace KanbanBoardApi.Controllers
 {
@@ -15,6 +13,7 @@ namespace KanbanBoardApi.Controllers
     [Route("api/[controller]")]
     public class BoardsController(IMediator mediator) : ControllerBase
     {
+        //create
         [HttpPost]
         public async Task<IActionResult> CreateBoard([FromBody] CreateBoardCommand command, CancellationToken ct)
         {
@@ -22,22 +21,24 @@ namespace KanbanBoardApi.Controllers
             return CreatedAtAction(nameof(GetBoardById), new { id = boardId }, boardId);
         }
 
-        [HttpPut("{id:Guid}")]
-        public async Task Update(Guid id, UpdateBoardCommand command, CancellationToken ct)
+        //update
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, UpdateBoardCommand command, CancellationToken ct)
         {
-            // ID from the route takes precedence
             command.Id = id;
             await mediator.Send(command, ct);
-            // no return -> 204 No Content
+            return NoContent();
         }
 
-        [HttpDelete("{id:Guid}")]
-        public async Task Delete(Guid id, CancellationToken ct)
+        //delete
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         {
             await mediator.Send(new DeleteBoardCommand { Id = id }, ct);
-            // no return -> 204 No Content
+            return NoContent();
         }
 
+        //getById
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBoardById(Guid id, CancellationToken ct)
         {
@@ -46,6 +47,7 @@ namespace KanbanBoardApi.Controllers
             return Ok(dto);
         }
 
+        //getAll
         [HttpGet]
         public async Task<PageResult<ListBoardsQueryDto>> List([FromQuery] ListBoardsQuery query, CancellationToken ct)
         {
