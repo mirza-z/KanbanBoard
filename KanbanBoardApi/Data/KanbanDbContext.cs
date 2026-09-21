@@ -28,6 +28,9 @@ public class KanbanDbContext : DbContext
             .HasForeignKey(card => card.ColumnId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Card>()
+            .Property(c => c.Version).IsConcurrencyToken();
+
         base.OnModelCreating(modelBuilder);
     }
 }

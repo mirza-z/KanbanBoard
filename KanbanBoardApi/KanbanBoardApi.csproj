@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Cards\Commands\Delete\" />
-    <Folder Include="Features\Cards\Commands\Update\" />
     <Folder Include="Features\Cards\Queries\List\" />
   </ItemGroup>
 

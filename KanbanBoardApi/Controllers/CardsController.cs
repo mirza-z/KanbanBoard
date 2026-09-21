@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Features.Cards.Commands.Create;
+using KanbanBoardApi.Features.Cards.Commands.Update;
 using KanbanBoardApi.Features.Cards.Queries.GetById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,13 @@ namespace KanbanBoardApi.Controllers
 
 
         //update
-
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateCard(Guid id, [FromBody] UpdateCardCommand command, CancellationToken ct)
+        {
+            command.Id = id;
+            var version = await mediator.Send(command, ct);
+            return Ok(new { version });
+        }
 
         //getById
         [HttpGet("{id}")]
