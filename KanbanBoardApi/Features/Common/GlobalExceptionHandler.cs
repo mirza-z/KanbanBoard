@@ -9,6 +9,25 @@ public class GlobalExceptionHandler(
     public async ValueTask<bool> TryHandleAsync(
         HttpContext ctx, Exception ex, CancellationToken ct)
     {
+        if (ex is FluentValidation.ValidationException vex)
+        {
+            var errors = vex.Errors
+                .GroupBy(e => e.PropertyName)
+                .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+            ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
+            return await problemDetails.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = ctx,
+                ProblemDetails =
+        {
+            Status = 400,
+            Title = "Validation failed",
+            Extensions = { ["errors"] = errors }
+        }
+            });
+        }
+
         var (status, title) = ex switch
         {
             NotFoundException => (StatusCodes.Status404NotFound, "Not found"),

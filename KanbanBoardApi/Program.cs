@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 using KanbanBoardApi.Data;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,13 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddDbContext<KanbanDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 
 builder.Services.AddOpenApi();
 
