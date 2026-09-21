@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
-import { BoardApiService } from '../../../../api-services/boards/board-api-service';
+import { BoardApiService } from '../../../api-services/boards/board-api-service';
 
 export interface BoardFormData {
   board?: {
@@ -16,7 +16,7 @@ export interface BoardFormData {
   selector: 'app-board-form',
   imports: [ReactiveFormsModule],
   templateUrl: './board-form.html',
-  styleUrl: '../../../../shared/modal/modal.scss'
+  styleUrl: '../../../shared/modal/modal.scss'
 })
 export class BoardForm {
   private fb = inject(FormBuilder);
