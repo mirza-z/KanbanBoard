@@ -1,0 +1,18 @@
+<h1>Boardovi</h1>
+
+@if (loading()) {
+  <p>Učitavanje...</p>
+} @else if (error()) {
+  <p class="error">{{ error() }}</p>
+} @else if (boards().length === 0) {
+  <p>Nema boardova.</p>
+} @else {
+  <ul class="board-list">
+    @for (board of boards(); track board.id) {
+      <li>
+        <a [routerLink]="['/board', board.id]">{{ board.title }}</a>
+        <span class="owner">{{ board.ownerId }}</span>
+      </li>
+    }
+  </ul>
+}
