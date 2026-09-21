@@ -11,21 +11,19 @@
     @for (column of b.columns; track column.id) {
       <div class="column">
         <h2>{{ column.title }}</h2>
-
-        <div class="cards">
-          @for (card of column.cards; track card.id) {
-            <div class="card">
-              <strong>{{ card.title }}</strong>
-              @if (card.description) {
-                <p>{{ card.description }}</p>
-              }
-            </div>
-          } @empty {
-            <p class="empty">Nema kartica.</p>
-          }
-        </div>
-
+        <button type="button" class="delete-btn" (click)="deleteColumn(column.id)">🗑</button>
         <button type="button" (click)="openCardForm(column.id)">+ Nova kartica</button>
+        @for (card of column.cards; track card.id) {
+          <div class="card">
+            <strong>{{ card.title }}</strong>
+            @if (card.description) {
+              <p>{{ card.description }}</p>
+            }
+            <button type="button" class="delete-btn" (click)="deleteCard(card.id)">🗑</button>
+          </div>
+        } @empty {
+          <p class="empty">Nema kartica.</p>
+        }
       </div>
     } @empty {
       <p>Board nema kolona.</p>

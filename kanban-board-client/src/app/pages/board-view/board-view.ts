@@ -6,6 +6,9 @@ import { BoardDetailApi } from '../../api-services/boards/board-api.model';
 import { ColumnForm } from './column-form/column-form';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { CardForm } from './card-form/card-form';
+import { CardApiService } from '../../api-services/cards/card-api-service';
+import { ColumnApiService } from '../../api-services/columns/column-api-service';
+import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-board-view',
@@ -17,6 +20,8 @@ export class BoardView implements OnInit {
   private route = inject(ActivatedRoute);
   private boardApi = inject(BoardApiService);
   private dialog = inject(Dialog);
+  private columnApi = inject(ColumnApiService);
+  private cardApi = inject(CardApiService);
 
   boardId = '';
   board = signal<BoardDetailApi | null>(null);
@@ -52,12 +57,48 @@ export class BoardView implements OnInit {
       if (newId) this.load();
     });
   }
+
+  deleteColumn(columnId: string) {
+    const ref = this.dialog.open<boolean>(ConfirmDialog, {
+      data: {
+        title: 'Obriši kolonu',
+        message: 'Ovo će obrisati i sve kartice unutar kolone. Da li si siguran?'
+      }
+    });
+
+    ref.closed.subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.columnApi.delete(columnId).subscribe({
+        next: () => this.load(),
+        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+      });
+    });
+  }
+
   openCardForm(columnId: string) {
     const ref = this.dialog.open<string>(CardForm, {
       data: { columnId }
     });
     ref.closed.subscribe((newId) => {
       if (newId) this.load();
+    });
+  }
+  deleteCard(cardId: string) {
+    const ref = this.dialog.open<boolean>(ConfirmDialog, {
+      data: {
+        title: 'Obriši karticu',
+        message: 'Da li si siguran da želiš obrisati ovu karticu?'
+      }
+    });
+
+    ref.closed.subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.cardApi.delete(cardId).subscribe({
+        next: () => this.load(),
+        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+      });
     });
   }
 }

@@ -5,6 +5,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { BoardListItemApi } from '../../api-services/boards/board-api.model';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { BoardForm } from './board-form/board-form.ts/board-form';
+import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 
 
 @Component({
@@ -43,6 +44,27 @@ export class BoardList implements OnInit {
     const ref = this.dialog.open<string>(BoardForm);
     ref.closed.subscribe((newId) => {
       if (newId) this.load(); // refetch listu ako je board stvarno kreiran
+    });
+  }
+
+  deleteBoard(boardId: string, event: Event) {
+    event.stopPropagation(); // spriječi da klik na dugme aktivira i routerLink navigaciju
+    event.preventDefault();
+
+    const ref = this.dialog.open<boolean>(ConfirmDialog, {
+      data: {
+        title: 'Obriši board',
+        message: 'Ovo će trajno obrisati board i sve kolone i kartice unutar njega. Da li si siguran?'
+      }
+    });
+
+    ref.closed.subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this.boardApi.delete(boardId).subscribe({
+        next: () => this.load(),
+        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+      });
     });
   }
 }

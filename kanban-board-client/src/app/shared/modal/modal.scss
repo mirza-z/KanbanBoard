@@ -47,3 +47,14 @@
   font-size: 0.8rem;
   margin-top: 0.25rem;
 }
+
+button.danger {
+  background: #c0392b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &:hover { background: #a5281b; }
+}

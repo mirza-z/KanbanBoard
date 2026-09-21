@@ -1,0 +1,13 @@
+<div class="modal-card">
+  <div class="modal-header">
+    <h2>{{ data.title }}</h2>
+    <button type="button" (click)="cancel()">✕</button>
+  </div>
+
+  <p>{{ data.message }}</p>
+
+  <div class="modal-actions">
+    <button type="button" (click)="cancel()">{{ data.cancelLabel ?? 'Otkaži' }}</button>
+    <button type="button" class="danger" (click)="confirm()">{{ data.confirmLabel ?? 'Obriši' }}</button>
+  </div>
+</div>
