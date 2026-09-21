@@ -1,5 +1,6 @@
 ﻿using KanbanBoardApi.Features.Columns.Commands.Create;
 using KanbanBoardApi.Features.Columns.Commands.Delete;
+using KanbanBoardApi.Features.Columns.Commands.Update;
 using KanbanBoardApi.Features.Columns.Queries.GetById;
 using KanbanBoardApi.Features.Columns.Queries.List;
 using KanbanBoardApi.Features.Common;
@@ -25,6 +26,15 @@ namespace KanbanBoardApi.Controllers
         public async Task<IActionResult> DeleteColumn(Guid id, CancellationToken ct)
         {
             await mediator.Send(new DeleteColumnCommand { Id = id }, ct);
+            return NoContent();
+        }
+
+        //update
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateColumn(Guid id, [FromBody] UpdateColumnCommand command, CancellationToken ct)
+        {
+            command.Id = id;
+            await mediator.Send(command, ct);
             return NoContent();
         }
 
