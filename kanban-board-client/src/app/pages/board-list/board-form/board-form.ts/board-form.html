@@ -1,0 +1,36 @@
+
+<div class="modal-card">
+  <div class="modal-header">
+    <h2>Novi board</h2>
+    <button type="button" (click)="close()">✕</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="title">Naslov</label>
+      <input id="title" type="text" formControlName="title" />
+      @if (serverErrors()?.['Title']; as errs) {
+        <div class="field-error">{{ errs[0] }}</div>
+      }
+    </div>
+
+    <div class="field">
+      <label for="ownerId">Vlasnik</label>
+      <input id="ownerId" type="text" formControlName="ownerId" />
+      @if (serverErrors()?.['OwnerId']; as errs) {
+        <div class="field-error">{{ errs[0] }}</div>
+      }
+    </div>
+
+    @if (conflictMessage()) {
+      <div class="field-error">{{ conflictMessage() }}</div>
+    }
+
+    <div class="modal-actions">
+      <button type="button" (click)="close()">Otkaži</button>
+      <button type="submit" [disabled]="form.invalid || submitting()">
+        {{ submitting() ? 'Čuvanje...' : 'Sačuvaj' }}
+      </button>
+    </div>
+  </form>
+</div>
