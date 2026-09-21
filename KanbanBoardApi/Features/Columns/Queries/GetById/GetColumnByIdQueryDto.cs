@@ -1,4 +1,6 @@
 ﻿
+using KanbanBoardApi.Features.Common;
+
 namespace KanbanBoardApi.Features.Columns.Queries.GetById
 {
     public class GetColumnByIdQueryDto
@@ -11,12 +13,4 @@ namespace KanbanBoardApi.Features.Columns.Queries.GetById
         public List<CardDto> Cards { get; set; } = new();
     }
 
-    public sealed class CardDto
-    {
-        public Guid Id { get; set; }
-        public required string Title { get; set; }
-        public string? Description { get; set; }
-        public int Order { get; set; }
-        public int Version { get; set; }
-    }
 }

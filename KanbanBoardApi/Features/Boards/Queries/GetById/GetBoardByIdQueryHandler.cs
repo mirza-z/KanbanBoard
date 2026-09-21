@@ -19,7 +19,24 @@ namespace KanbanBoardApi.Features.Boards.Queries.GetById
                 Title = x.Title,
                 OwnerId = x.OwnerId,
                 CreatedAt = x.CreatedAt,
-                Columns = x.Columns.Select(c => new ColumnDto { Id = c.Id, Title = c.Title, Order = c.Order }).ToList()
+                Columns = x.Columns
+                            .OrderBy(c => c.Order)
+                            .Select(c => new ColumnDto
+                            {
+                                Id = c.Id,
+                                Title = c.Title,
+                                Order = c.Order,
+                                Cards = c.Cards
+                                    .OrderBy(k => k.Order)
+                                    .Select(k => new CardDto
+                                    {
+                                        Id = k.Id,
+                                        Title = k.Title,
+                                        Description = k.Description,
+                                        Order = k.Order,
+                                        Version = k.Version
+                                    }).ToList()
+                            }).ToList()
             })
             .FirstOrDefaultAsync(ct);
 
