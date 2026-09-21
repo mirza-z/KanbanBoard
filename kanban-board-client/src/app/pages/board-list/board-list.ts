@@ -4,7 +4,7 @@ import { Dialog } from '@angular/cdk/dialog';
 
 import { BoardListItemApi } from '../../api-services/boards/board-api.model';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
-import { BoardForm } from './board-form/board-form.ts/board-form.ts';
+import { BoardForm } from './board-form/board-form.ts/board-form';
 
 
 @Component({

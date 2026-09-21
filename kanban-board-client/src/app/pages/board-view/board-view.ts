@@ -5,6 +5,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import { BoardDetailApi } from '../../api-services/boards/board-api.model';
 import { ColumnForm } from './column-form/column-form';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
+import { CardForm } from './card-form/card-form';
 
 @Component({
   selector: 'app-board-view',
@@ -46,6 +47,14 @@ export class BoardView implements OnInit {
   openColumnForm() {
     const ref = this.dialog.open<string>(ColumnForm, {
       data: { boardId: this.boardId }
+    });
+    ref.closed.subscribe((newId) => {
+      if (newId) this.load();
+    });
+  }
+  openCardForm(columnId: string) {
+    const ref = this.dialog.open<string>(CardForm, {
+      data: { columnId }
     });
     ref.closed.subscribe((newId) => {
       if (newId) this.load();

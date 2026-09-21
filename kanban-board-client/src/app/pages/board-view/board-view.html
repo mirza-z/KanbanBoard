@@ -6,7 +6,7 @@
   <h1>{{ b.title }}</h1>
 
   <button type="button" (click)="openColumnForm()">+ Nova kolona</button>
-  
+
   <div class="columns">
     @for (column of b.columns; track column.id) {
       <div class="column">
@@ -24,6 +24,8 @@
             <p class="empty">Nema kartica.</p>
           }
         </div>
+
+        <button type="button" (click)="openCardForm(column.id)">+ Nova kartica</button>
       </div>
     } @empty {
       <p>Board nema kolona.</p>
