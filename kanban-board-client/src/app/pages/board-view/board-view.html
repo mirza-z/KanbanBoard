@@ -11,6 +11,7 @@
     @for (column of b.columns; track column.id) {
       <div class="column">
         <h2>{{ column.title }}</h2>
+        <button type="button" class="edit-btn" (click)="editColumn(column)">✏</button>
         <button type="button" class="delete-btn" (click)="deleteColumn(column.id)">🗑</button>
         <button type="button" (click)="openCardForm(column.id)">+ Nova kartica</button>
         @for (card of column.cards; track card.id) {

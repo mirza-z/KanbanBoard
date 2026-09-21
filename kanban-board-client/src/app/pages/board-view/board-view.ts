@@ -50,11 +50,20 @@ export class BoardView implements OnInit {
   }
 
   openColumnForm() {
-    const ref = this.dialog.open<string>(ColumnForm, {
+    const ref = this.dialog.open<string | undefined>(ColumnForm, {
       data: { boardId: this.boardId }
     });
     ref.closed.subscribe((newId) => {
       if (newId) this.load();
+    });
+  }
+
+  editColumn(column: { id: string; title: string }) {
+    const ref = this.dialog.open<string | undefined>(ColumnForm, {
+      data: { boardId: this.boardId, column }
+    });
+    ref.closed.subscribe((result) => {
+      if (result) this.load();
     });
   }
 
@@ -77,11 +86,11 @@ export class BoardView implements OnInit {
   }
 
   openCardForm(columnId: string) {
-    const ref = this.dialog.open<string>(CardForm, {
+    const ref = this.dialog.open<{ id: string; version?: number } | undefined>(CardForm, {
       data: { columnId }
     });
-    ref.closed.subscribe((newId) => {
-      if (newId) this.load();
+    ref.closed.subscribe((result) => {
+      if (result) this.load();
     });
   }
 
