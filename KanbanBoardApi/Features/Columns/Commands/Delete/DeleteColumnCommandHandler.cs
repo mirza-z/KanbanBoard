@@ -1,5 +1,4 @@
 ﻿using KanbanBoardApi.Data;
-using KanbanBoardApi.Features.Boards.Commands.Delete;
 using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

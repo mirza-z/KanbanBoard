@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Features.Cards.Commands.Create;
+using KanbanBoardApi.Features.Cards.Commands.Delete;
 using KanbanBoardApi.Features.Cards.Commands.Update;
 using KanbanBoardApi.Features.Cards.Queries.GetById;
 using MediatR;
@@ -19,7 +20,12 @@ namespace KanbanBoardApi.Controllers
         }
 
         //delete
-
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteCard(Guid id, CancellationToken ct)
+        {
+            await mediator.Send(new DeleteCardCommand { Id = id }, ct);
+            return NoContent();
+        }
 
         //update
         [HttpPut("{id:guid}")]
