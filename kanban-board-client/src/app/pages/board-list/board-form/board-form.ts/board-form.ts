@@ -1,10 +1,16 @@
-// pages/board-list/board-form/board-form.ts
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DialogRef } from '@angular/cdk/dialog';
-
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BoardApiService } from '../../../../api-services/boards/board-api-service';
+
+export interface BoardFormData {
+  board?: {
+    id: string;
+    title: string;
+    ownerId: string;
+  };
+}
 
 @Component({
   selector: 'app-board-form',
@@ -15,11 +21,14 @@ import { BoardApiService } from '../../../../api-services/boards/board-api-servi
 export class BoardForm {
   private fb = inject(FormBuilder);
   private boardApi = inject(BoardApiService);
-  dialogRef = inject(DialogRef<string>); // vraća id novog boarda kad se zatvori uspješno
+  data = inject<BoardFormData>(DIALOG_DATA, { optional: true }) ?? {};
+  dialogRef = inject(DialogRef<string | undefined>);
+
+  isEditMode = !!this.data.board;
 
   form = this.fb.nonNullable.group({
-    title: ['', [Validators.required, Validators.maxLength(100)]],
-    ownerId: ['', [Validators.required, Validators.maxLength(100)]],
+    title: [this.data.board?.title ?? '', [Validators.required, Validators.maxLength(100)]],
+    ownerId: [{ value: this.data.board?.ownerId ?? '', disabled: this.isEditMode }, [Validators.required, Validators.maxLength(100)]],
   });
 
   submitting = signal(false);
@@ -33,21 +42,32 @@ export class BoardForm {
     this.serverErrors.set(null);
     this.conflictMessage.set(null);
 
-    this.boardApi.create(this.form.getRawValue()).subscribe({
-      next: (id) => {
-        this.dialogRef.close(id);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.submitting.set(false);
-        if (err.status === 400 && err.error?.errors) {
-          this.serverErrors.set(err.error.errors);
-        } else if (err.status === 409) {
-          this.conflictMessage.set('Board sa ovim naslovom i vlasnikom već postoji.');
-        } else {
-          this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
-        }
-      }
-    });
+    const title = this.form.getRawValue().title;
+
+    if (this.isEditMode) {
+      const board = this.data.board!;
+      this.boardApi.update(board.id, { title }).subscribe({
+        next: () => this.dialogRef.close(board.id),
+        error: (err: HttpErrorResponse) => this.handleError(err)
+      });
+    } else {
+      const ownerId = this.form.getRawValue().ownerId;
+      this.boardApi.create({ title, ownerId }).subscribe({
+        next: (id) => this.dialogRef.close(id),
+        error: (err: HttpErrorResponse) => this.handleError(err)
+      });
+    }
+  }
+
+  private handleError(err: HttpErrorResponse) {
+    this.submitting.set(false);
+    if (err.status === 400 && err.error?.errors) {
+      this.serverErrors.set(err.error.errors);
+    } else if (err.status === 409) {
+      this.conflictMessage.set('Board sa ovim naslovom i vlasnikom već postoji.');
+    } else {
+      this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
+    }
   }
 
   close() {

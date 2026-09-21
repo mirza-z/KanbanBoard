@@ -41,9 +41,21 @@ export class BoardList implements OnInit {
   }
 
   openCreateForm() {
-    const ref = this.dialog.open<string>(BoardForm);
+    const ref = this.dialog.open<string | undefined>(BoardForm);
     ref.closed.subscribe((newId) => {
-      if (newId) this.load(); // refetch listu ako je board stvarno kreiran
+      if (newId) this.load();
+    });
+  }
+
+  editBoard(board: { id: string; title: string; ownerId: string }, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const ref = this.dialog.open<string | undefined>(BoardForm, {
+      data: { board }
+    });
+    ref.closed.subscribe((result) => {
+      if (result) this.load();
     });
   }
 
