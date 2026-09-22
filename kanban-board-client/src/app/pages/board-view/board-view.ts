@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import { BoardDetailApi } from '../../api-services/boards/board-api.model';
@@ -13,6 +13,7 @@ import { ColumnApi } from '../../api-services/columns/column-api-model';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { BoardHubService } from '../../api-services/shared/board-hub.service';
 
 // hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
 // popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
@@ -32,17 +33,32 @@ export class BoardView implements OnInit {
   private dialog = inject(Dialog);
   private columnApi = inject(ColumnApiService);
   private cardApi = inject(CardApiService);
+  private boardHub = inject(BoardHubService);
 
   boardId = '';
   board = signal<BoardViewModel | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
 
+    constructor() {
+    effect(() => {
+      const changeCount = this.boardHub.boardChanged();
+      if (changeCount > 0) {
+        this.load();
+      }
+    });
+  }
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     this.boardId = id;
     this.load();
+    this.boardHub.connect(this.boardId);
+  }
+
+   ngOnDestroy() {
+    this.boardHub.disconnect();
   }
 
   tiltFor(id: string): number {
