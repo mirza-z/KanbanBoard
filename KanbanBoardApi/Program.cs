@@ -25,6 +25,8 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddSignalR();
 
+builder.Services.AddSingleton<IPresenceTracker, InMemoryPresenceTracker>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(AngularDevPolicy, policy => policy

@@ -298,6 +298,37 @@
   color: var(--amber);
 }
 
+.board-container {
+  position: relative; 
+  min-height: 80vh;
+}
+
+.remote-cursor {
+  position: absolute;
+  pointer-events: none;
+  transform: translate(-2px, -2px);
+  z-index: 1000;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    background: var(--cursor-color);
+    clip-path: polygon(0 0, 100% 40%, 40% 100%);
+  }
+
+  .cursor-label {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 6px;
+    background: var(--cursor-color);
+    color: white;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 640px) {
   :host { padding: 16px; }
   .column { width: 260px; }

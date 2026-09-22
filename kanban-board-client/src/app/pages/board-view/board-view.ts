@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, afterNextRender, effect, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import { BoardDetailApi } from '../../api-services/boards/board-api.model';
@@ -14,6 +14,8 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { BoardHubService } from '../../api-services/shared/board-hub.service';
+import { fromEvent } from 'rxjs';
+import { sampleTime, map } from 'rxjs/operators';
 
 // hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
 // popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
@@ -33,7 +35,8 @@ export class BoardView implements OnInit {
   private dialog = inject(Dialog);
   private columnApi = inject(ColumnApiService);
   private cardApi = inject(CardApiService);
-  private boardHub = inject(BoardHubService);
+  boardHub = inject(BoardHubService);
+  private boardContainerRef = viewChild.required<ElementRef<HTMLElement>>('boardContainer');
 
   boardId = '';
   board = signal<BoardViewModel | null>(null);
@@ -48,6 +51,9 @@ export class BoardView implements OnInit {
         this.load();
       }
     });
+    afterNextRender(() => {
+      this.setupCursorTracking();
+    });
   }
 
   ngOnInit() {
@@ -61,6 +67,25 @@ export class BoardView implements OnInit {
    ngOnDestroy() {
     this.boardHub.disconnect();
   }
+
+  private setupCursorTracking() {
+  const container = this.boardContainerRef().nativeElement as HTMLElement;
+
+  fromEvent<MouseEvent>(container, 'mousemove')
+    .pipe(
+      sampleTime(50),
+      map(event => {
+        const rect = container.getBoundingClientRect();
+        return {
+          x: (event.clientX - rect.left) / rect.width,
+          y: (event.clientY - rect.top) / rect.height,
+        };
+      })
+    )
+    .subscribe(({ x, y }) => {
+      this.boardHub.updateCursorPosition(this.boardId, x, y);
+    });
+}
 
   tiltFor(id: string): number {
     let hash = 0;
