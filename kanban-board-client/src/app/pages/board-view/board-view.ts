@@ -1,9 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-
 import { BoardDetailApi } from '../../api-services/boards/board-api.model';
-
 import { ColumnForm } from './column-form/column-form';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { CardForm } from './card-form/card-form';
@@ -14,6 +12,7 @@ import { CardApi } from '../../api-services/cards/card-api-model';
 import { ColumnApi } from '../../api-services/columns/column-api-model';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 // hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
 // popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
@@ -131,6 +130,45 @@ export class BoardView implements OnInit {
         next: () => this.load(),
         error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
       });
+    });
+  }
+
+  onCardDropped(event: CdkDragDrop<CardWithConflict[]>, targetColumn: ColumnWithConflictCards) {
+  const card = event.item.data as CardWithConflict;
+
+  // Isti container = samo reordering unutar iste kolone
+  if (event.previousContainer === event.container) {
+    if (event.previousIndex === event.currentIndex) return; // nije se pomjerila
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+  } else {
+    // Prebacivanje u drugu kolonu
+    transferArrayItem(
+      event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex
+    );
+  }
+
+  // board() signal treba novi objekat da Angular primijeti promjenu (immutability)
+  this.board.update(b => b ? { ...b } : b);
+
+  this.cardApi.move(card.id, {
+      targetColumnId: targetColumn.id,
+      targetIndex: event.currentIndex,
+      version: card.version
+    }).subscribe({
+      next: (response) => {
+        card.version = response.version;
+        card.hasConflict = false;
+        this.board.update(b => b ? { ...b } : b);
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          card.hasConflict = true;
+        }
+        this.load();
+      }
     });
   }
 }

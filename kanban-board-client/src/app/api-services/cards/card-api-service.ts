@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environments';
-import { CardDetailApi, CreateCardRequest, MoveCardRequest, UpdateCardRequest } from './card-api-model';
+import { CardDetailApi, CreateCardRequest, MoveCardRequest, MoveCardResponse, UpdateCardRequest } from './card-api-model';
 
 
 @Injectable({ providedIn: 'root' })
@@ -26,7 +26,7 @@ export class CardApiService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  move(id: string, request: MoveCardRequest): Observable<number> {
-    return this.http.put<number>(`${this.baseUrl}/${id}/move`, request); // vraća novu Version
+  move(id: string, request: MoveCardRequest): Observable<MoveCardResponse> {
+    return this.http.put<MoveCardResponse>(`${this.baseUrl}/${id}/move`, request);
   }
 }

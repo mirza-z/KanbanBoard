@@ -22,11 +22,18 @@
         </div>
 
         <div class="column-body">
-          <div class="ticket-list" cdkDropList [id]="column.id">
+          <div
+            class="ticket-list"
+            cdkDropList
+            [id]="column.id"
+            [cdkDropListData]="column.cards"
+            (cdkDropListDropped)="onCardDropped($event, column)"
+          >
             @for (card of column.cards; track card.id) {
               <div
                 class="ticket"
                 cdkDrag
+                [cdkDragData]="card"
                 [class.conflict]="card.hasConflict"
                 [style.--tilt.deg]="tiltFor(card.id)"
                 (click)="openCardForm(card, column)"

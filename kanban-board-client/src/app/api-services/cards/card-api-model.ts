@@ -12,6 +12,10 @@ export interface CardDetailApi extends CardApi {
   columnTitle: string;
 }
 
+export interface MoveCardResponse {
+  version: number;
+}
+
 export interface CreateCardRequest {
   title: string;
   description: string | null;
