@@ -2,6 +2,7 @@ using FluentValidation;
 using KanbanBoardApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using KanbanBoardApi.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,12 +23,15 @@ builder.Services.AddMediatR(cfg =>
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
+builder.Services.AddSignalR();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(AngularDevPolicy, policy => policy
         .WithOrigins("http://localhost:4200")
         .AllowAnyHeader()
-        .AllowAnyMethod());
+        .AllowAnyMethod()
+        .AllowCredentials());
 });
 
 builder.Services.AddOpenApi();
@@ -45,5 +49,6 @@ app.UseHttpsRedirection();
 app.UseCors(AngularDevPolicy);   
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<BoardHub>("/hubs/board");
 
 app.Run();
