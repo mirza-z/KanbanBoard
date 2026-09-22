@@ -31,4 +31,8 @@ export class BoardApiService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  reorderColumns(boardId: string, columnIds: string[]): Observable<void> {
+  return this.http.put<void>(`${this.baseUrl}/${boardId}/columns/order`, { columnIds });
+}
 }

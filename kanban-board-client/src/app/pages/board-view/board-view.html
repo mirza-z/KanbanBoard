@@ -8,55 +8,76 @@
   </div>
 </div>
 
-@if (board(); as b) {
-  <div class="board" cdkDropListGroup>
-    @for (column of b.columns; track column.id; let i = $index) {
-      <div class="column" [class]="'col-' + (i % 3)">
-        <div class="column-head">
-          <h2 (click)="openColumnForm(column)">{{ column.title }}</h2>
-          <span class="count-tag">{{ column.cards.length }}</span>
-          <div class="column-actions">
-            <button class="icon-btn" (click)="openColumnForm(column)" title="Rename column">✎</button>
-            <button class="icon-btn danger" (click)="confirmDeleteColumn(column)" title="Delete column">✕</button>
-          </div>
-        </div>
+<div class="board-actions">
+  @if (!reorderMode()) {
+    <button class="btn-secondary" (click)="startReorder()">Reorder columns</button>
+  } @else {
+    <button class="btn-primary" (click)="confirmReorder()">Done</button>
+    <button class="btn-secondary" (click)="cancelReorder()">Cancel</button>
+  }
+</div>
 
-        <div class="column-body">
-          <div
-            class="ticket-list"
-            cdkDropList
-            [id]="column.id"
-            [cdkDropListData]="column.cards"
-            (cdkDropListDropped)="onCardDropped($event, column)"
-          >
-            @for (card of column.cards; track card.id) {
-              <div
-                class="ticket"
-                cdkDrag
-                [cdkDragData]="card"
-                [class.conflict]="card.hasConflict"
-                [style.--tilt.deg]="tiltFor(card.id)"
-                (click)="openCardForm(card, column)"
-              >
-                <span class="ticket-id">{{ card.id.slice(0, 6) }}</span>
-                <h3>{{ card.title }}</h3>
-                @if (card.description) {
-                  <p>{{ card.description }}</p>
-                }
-                <div class="ticket-footer">
-                  <span class="ticket-stamp">{{ card.hasConflict ? 'CONFLICT' : (column.title | uppercase) }}</span>
-                  <span class="ticket-version">v{{ card.version }}</span>
-                </div>
-                <div class="ticket-actions">
-                  <button class="icon-btn danger" (click)="confirmDeleteCard(card, $event)" title="Delete card">✕</button>
-                </div>
-              </div>
-            }
+@if (board(); as b) {
+  <div class="board">
+    <div
+      class="columns-track"
+      cdkDropListGroup
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      [cdkDropListData]="b.columns"
+      [cdkDropListDisabled]="!reorderMode()"
+      [cdkDropListConnectedTo]="[]"
+      (cdkDropListDropped)="onColumnDropped($event)"
+    >
+      @for (column of b.columns; track column.id; let i = $index) {
+        <div
+          class="column"
+          [class]="'col-' + (i % 3)"
+          cdkDrag
+          [cdkDragData]="column"
+          [cdkDragDisabled]="!reorderMode()"
+        >
+          <div class="column-head">
+            <h2 (click)="openColumnForm(column)">{{ column.title }}</h2>
+            <span class="count-tag">{{ column.cards.length }}</span>
+            <div class="column-actions">
+              <button class="icon-btn" (click)="openColumnForm(column)" title="Rename column">✎</button>
+              <button class="icon-btn danger" (click)="confirmDeleteColumn(column)" title="Delete column">✕</button>
+            </div>
           </div>
-          <button class="add-ticket" (click)="openCardForm(null, column)">+ New ticket</button>
+
+          <div class="column-body">
+            <div class="ticket-list" cdkDropList [id]="column.id" [cdkDropListData]="column.cards" (cdkDropListDropped)="onCardDropped($event, column)">
+              @for (card of column.cards; track card.id) {
+                <div
+                  class="ticket"
+                  cdkDrag
+                  [cdkDragData]="card"
+                  [cdkDragDisabled]="reorderMode()"
+                  [class.conflict]="card.hasConflict"
+                  [style.--tilt.deg]="tiltFor(card.id)"
+                  (click)="openCardForm(card, column)"
+                >
+                  <span class="ticket-id">{{ card.id.slice(0, 6) }}</span>
+                  <h3>{{ card.title }}</h3>
+                  @if (card.description) {
+                    <p>{{ card.description }}</p>
+                  }
+                  <div class="ticket-footer">
+                    <span class="ticket-stamp">{{ card.hasConflict ? 'CONFLICT' : (column.title | uppercase) }}</span>
+                    <span class="ticket-version">v{{ card.version }}</span>
+                  </div>
+                  <div class="ticket-actions">
+                    <button class="icon-btn danger" (click)="confirmDeleteCard(card, $event)" title="Delete card">✕</button>
+                  </div>
+                </div>
+              }
+            </div>
+            <button class="add-ticket" (click)="openCardForm(null, column)">+ New ticket</button>
+          </div>
         </div>
-      </div>
-    }
+      }
+    </div>
     <button class="add-column" (click)="openColumnForm(null)">+ New column</button>
   </div>
 }

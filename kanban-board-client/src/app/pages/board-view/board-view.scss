@@ -55,6 +55,31 @@
   align-items: flex-start;
 
 }
+
+.columns-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  align-items: flex-start;
+}
+
+.add-column {
+  margin-top: 22px;
+}
+
+.board-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.column[cdkDrag]:not([cdkDragDisabled]) {
+  cursor: grab;
+}
+.column.cdk-drag-dragging {
+  cursor: grabbing;
+}
+
 .column {
   width: 300px;
   flex-shrink: 0;

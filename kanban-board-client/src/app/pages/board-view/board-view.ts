@@ -39,6 +39,7 @@ export class BoardView implements OnInit {
   board = signal<BoardViewModel | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  reorderMode = signal(false);
 
     constructor() {
     effect(() => {
@@ -186,5 +187,35 @@ export class BoardView implements OnInit {
         this.load();
       }
     });
+  }
+
+  startReorder() {
+    this.reorderMode.set(true);
+  }
+
+  cancelReorder() {
+    this.reorderMode.set(false);
+    this.load();
+  }
+
+  confirmReorder() {
+    const b = this.board();
+    if (!b) return;
+    const columnIds = b.columns.map(c => c.id);
+
+    this.boardApi.reorderColumns(this.boardId, columnIds).subscribe({
+      next: () => this.reorderMode.set(false),
+      error: () => {
+        alert('Reorder nije uspio. Pokušaj ponovo.');
+        this.reorderMode.set(false);
+        this.load();
+      }
+    });
+  }
+
+  onColumnDropped(event: CdkDragDrop<ColumnWithConflictCards[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    this.board.update(b => b ? { ...b } : b);
   }
 }

@@ -3,6 +3,7 @@ using KanbanBoardApi.Features.Boards.Commands.Delete;
 using KanbanBoardApi.Features.Boards.Commands.Update;
 using KanbanBoardApi.Features.Boards.Queries.GetById;
 using KanbanBoardApi.Features.Boards.Queries.List;
+using KanbanBoardApi.Features.Columns.Commands.Reorder;
 using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,15 @@ namespace KanbanBoardApi.Controllers
         public async Task<IActionResult> Update(Guid id, UpdateBoardCommand command, CancellationToken ct)
         {
             command.Id = id;
+            await mediator.Send(command, ct);
+            return NoContent();
+        }
+
+        //reorder columns
+        [HttpPut("{boardId:guid}/columns/order")]
+        public async Task<IActionResult> ReorderColumns(Guid boardId, [FromBody] ReorderColumnsCommand command, CancellationToken ct)
+        {
+            command.BoardId = boardId;
             await mediator.Send(command, ct);
             return NoContent();
         }
