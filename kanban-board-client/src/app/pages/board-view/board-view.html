@@ -1,4 +1,3 @@
-
 <div class="board-header">
   <div class="board-title-group">
     <a routerLink="/boards" class="back-link" title="Back to boards">← Boards</a>
@@ -10,7 +9,7 @@
 </div>
 
 @if (board(); as b) {
-  <div class="board">
+  <div class="board" cdkDropListGroup>
     @for (column of b.columns; track column.id; let i = $index) {
       <div class="column" [class]="'col-' + (i % 3)">
         <div class="column-head">
@@ -23,27 +22,30 @@
         </div>
 
         <div class="column-body">
-          @for (card of column.cards; track card.id) {
-            <div
-              class="ticket"
-              [class.conflict]="card.hasConflict"
-              [style.--tilt.deg]="tiltFor(card.id)"
-              (click)="openCardForm(card, column)"
-            >
-              <span class="ticket-id">{{ card.id.slice(0, 6) }}</span>
-              <h3>{{ card.title }}</h3>
-              @if (card.description) {
-                <p>{{ card.description }}</p>
-              }
-              <div class="ticket-footer">
-                <span class="ticket-stamp">{{ card.hasConflict ? 'CONFLICT' : (column.title | uppercase) }}</span>
-                <span class="ticket-version">v{{ card.version }}</span>
+          <div class="ticket-list" cdkDropList [id]="column.id">
+            @for (card of column.cards; track card.id) {
+              <div
+                class="ticket"
+                cdkDrag
+                [class.conflict]="card.hasConflict"
+                [style.--tilt.deg]="tiltFor(card.id)"
+                (click)="openCardForm(card, column)"
+              >
+                <span class="ticket-id">{{ card.id.slice(0, 6) }}</span>
+                <h3>{{ card.title }}</h3>
+                @if (card.description) {
+                  <p>{{ card.description }}</p>
+                }
+                <div class="ticket-footer">
+                  <span class="ticket-stamp">{{ card.hasConflict ? 'CONFLICT' : (column.title | uppercase) }}</span>
+                  <span class="ticket-version">v{{ card.version }}</span>
+                </div>
+                <div class="ticket-actions">
+                  <button class="icon-btn danger" (click)="confirmDeleteCard(card, $event)" title="Delete card">✕</button>
+                </div>
               </div>
-              <div class="ticket-actions">
-                <button class="icon-btn danger" (click)="confirmDeleteCard(card, $event)" title="Delete card">✕</button>
-              </div>
-            </div>
-          }
+            }
+          </div>
           <button class="add-ticket" (click)="openCardForm(null, column)">+ New ticket</button>
         </div>
       </div>

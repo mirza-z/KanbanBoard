@@ -13,6 +13,7 @@ import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { CardApi } from '../../api-services/cards/card-api-model';
 import { ColumnApi } from '../../api-services/columns/column-api-model';
 import { DatePipe, UpperCasePipe } from '@angular/common';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
 // popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
@@ -22,7 +23,7 @@ type BoardViewModel = Omit<BoardDetailApi, 'columns'> & { columns: ColumnWithCon
 
 @Component({
   selector: 'app-board-view',
-  imports: [RouterLink,DatePipe, UpperCasePipe],
+  imports: [RouterLink,DatePipe, UpperCasePipe, DragDropModule],
   templateUrl: './board-view.html',
   styleUrl: './board-view.scss'
 })

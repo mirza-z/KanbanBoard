@@ -50,10 +50,10 @@
 
 .board {
   display: flex;
-  flex-wrap: wrap;      // kolone padaju u novi red umjesto da guraju širinu
+  flex-wrap: wrap;      
   gap: 22px;
   align-items: flex-start;
-  // min-width: max-content  <- ukloni ovu liniju, ona je uzrok overflow-a
+
 }
 .column {
   width: 300px;
@@ -71,7 +71,6 @@
   position: relative;
 }
 
-// accent tab on top edge — color set per column via .col-0/.col-1/.col-2 below
 .column-head::before {
   content: "";
   position: absolute;
@@ -128,8 +127,14 @@
   gap: 16px;
 }
 
-// Rotate accent colors across columns. Apply by binding [class]="'col-' + (i % 3)"
-// on the .column element, where i is the column's index in the @for loop.
+.ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 8px;
+}
+
+
 .col-0 .column-head { --col-accent: var(--teal); }
 .col-1 .column-head { --col-accent: var(--amber); }
 .col-2 .column-head { --col-accent: #4C7A52; }
@@ -149,7 +154,6 @@
   box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.34);
 }
 
-// dashed perforation + tear-stub dots, mimicking a ticket stub
 .ticket::before {
   content: "";
   position: absolute;
@@ -221,7 +225,6 @@
   color: var(--ink-soft);
 }
 
-// applied when card update/move returned a 409 (stale version)
 .ticket.conflict .ticket-stamp { background: var(--rust); }
 
 .ticket-actions {
