@@ -1,4 +1,5 @@
 ﻿using KanbanBoardApi.Data;
+using KanbanBoardApi.Domain.Entities;
 using KanbanBoardApi.Features.Boards.Commands.Update;
 using KanbanBoardApi.Features.Common;
 using MediatR;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanbanBoardApi.Features.Columns.Commands.Update;
 
-public class UpdateColumnCommandHandler(KanbanDbContext ctx)
+public class UpdateColumnCommandHandler(KanbanDbContext ctx, IPublisher publisher)
     : IRequestHandler<UpdateColumnCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateColumnCommand request, CancellationToken ct)
@@ -27,6 +28,8 @@ public class UpdateColumnCommandHandler(KanbanDbContext ctx)
 
         entity.Title = title;
         await ctx.SaveChangesAsync(ct);
+
+        await publisher.Publish(new BoardChangedNotification(entity.BoardId), ct);
         return Unit.Value;
     }
 }

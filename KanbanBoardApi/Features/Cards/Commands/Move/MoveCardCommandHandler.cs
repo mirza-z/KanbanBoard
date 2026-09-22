@@ -3,7 +3,7 @@ using KanbanBoardApi.Features.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-public class MoveCardCommandHandler(KanbanDbContext ctx)
+public class MoveCardCommandHandler(KanbanDbContext ctx, IPublisher publisher)
     : IRequestHandler<MoveCardCommand, int>
 {
     public async Task<int> Handle(MoveCardCommand request, CancellationToken ct)
@@ -52,12 +52,14 @@ public class MoveCardCommandHandler(KanbanDbContext ctx)
 
         try
         {
-            await ctx.SaveChangesAsync(ct);   
+            await ctx.SaveChangesAsync(ct);
         }
         catch (DbUpdateConcurrencyException)
         {
             throw new ConflictException("Card was modified by someone else. Refresh and try again.");
         }
+
+        await publisher.Publish(new BoardChangedNotification(boardId), ct);
 
         return card.Version;
     }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanbanBoardApi.Features.Cards.Commands.Create
 {
-    public class CreateCardCommandHandler(KanbanDbContext ctx) : IRequestHandler<CreateCardCommand, Guid>
+    public class CreateCardCommandHandler(KanbanDbContext ctx, IPublisher publisher) : IRequestHandler<CreateCardCommand, Guid>
     {
         public async Task<Guid> Handle(CreateCardCommand request, CancellationToken ct)
         {
@@ -32,6 +32,13 @@ namespace KanbanBoardApi.Features.Cards.Commands.Create
 
             ctx.Cards.Add(card);
             await ctx.SaveChangesAsync(ct);
+
+            var boardId = await ctx.Columns
+               .Where(c => c.Id == card.ColumnId)
+               .Select(c => c.BoardId)
+               .FirstAsync(ct);
+
+            await publisher.Publish(new BoardChangedNotification(boardId), ct);
             return card.Id;
         }
     }

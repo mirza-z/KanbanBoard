@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanbanBoardApi.Features.Cards.Commands.Delete
 {
-    public class DeleteCardCommandHandler(KanbanDbContext ctx) : IRequestHandler<DeleteCardCommand, Unit>
+    public class DeleteCardCommandHandler(KanbanDbContext ctx, IPublisher publisher) : IRequestHandler<DeleteCardCommand, Unit>
     {
         public async Task<Unit> Handle(DeleteCardCommand request, CancellationToken cancellationToken)
         {
@@ -16,6 +16,12 @@ namespace KanbanBoardApi.Features.Cards.Commands.Delete
             ctx.Cards.Remove(card);
             await ctx.SaveChangesAsync(cancellationToken);
 
+            var boardId = await ctx.Columns
+                .Where(c => c.Id == card.ColumnId)
+                .Select(c => c.BoardId)
+                .FirstAsync(cancellationToken);
+
+            await publisher.Publish(new BoardChangedNotification(boardId), cancellationToken);
             return Unit.Value;
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanbanBoardApi.Features.Columns.Commands.Delete
 {
-    public class DeleteColumnCommandHandler(KanbanDbContext ctx) : IRequestHandler<DeleteColumnCommand, Unit>
+    public class DeleteColumnCommandHandler(KanbanDbContext ctx, IPublisher publisher) : IRequestHandler<DeleteColumnCommand, Unit>
     {
         public async Task<Unit> Handle(DeleteColumnCommand request, CancellationToken cancellationToken)
         {
@@ -16,6 +16,7 @@ namespace KanbanBoardApi.Features.Columns.Commands.Delete
             ctx.Columns.Remove(column);
             await ctx.SaveChangesAsync(cancellationToken);
 
+            await publisher.Publish(new BoardChangedNotification(column.BoardId), cancellationToken);
             return Unit.Value;
         }
     }

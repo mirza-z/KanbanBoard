@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KanbanBoardApi.Features.Columns.Commands.Create
 {
-    public class CreateColumnCommandHandler (KanbanDbContext ctx) : IRequestHandler<CreateColumnCommand, Guid>
+    public class CreateColumnCommandHandler (KanbanDbContext ctx, IPublisher publisher) : IRequestHandler<CreateColumnCommand, Guid>
     {
         public async Task<Guid> Handle(CreateColumnCommand request, CancellationToken ct)
         {
@@ -36,6 +36,7 @@ namespace KanbanBoardApi.Features.Columns.Commands.Create
 
             ctx.Columns.Add(column);
             await ctx.SaveChangesAsync(ct);
+            await publisher.Publish(new BoardChangedNotification(column.BoardId), ct);
             return column.Id;
         }
     }
