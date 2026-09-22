@@ -1,34 +1,53 @@
-@if (loading()) {
-  <p>Učitavanje...</p>
-} @else if (error()) {
-  <p class="error">{{ error() }}</p>
-} @else if (board(); as b) {
-  <h1>{{ b.title }}</h1>
 
-  <button type="button" (click)="openColumnForm()">+ Nova kolona</button>
+<div class="board-header">
+  <div class="board-title-group">
+    <a routerLink="/boards" class="back-link" title="Back to boards">← Boards</a>
+    <h1>{{ board()?.title }}</h1>
+  </div>
+  <div class="board-meta">
+    OWNER {{ board()?.ownerId }} · CREATED {{ board()?.createdAt | date:'yyyy-MM-dd' }}
+  </div>
+</div>
 
-  <div class="columns">
-    @for (column of b.columns; track column.id) {
-      <div class="column">
-        <h2>{{ column.title }}</h2>
-        <button type="button" class="edit-btn" (click)="editColumn(column)">✏</button>
-        <button type="button" class="delete-btn" (click)="deleteColumn(column.id)">🗑</button>
-        <button type="button" (click)="openCardForm(column.id)">+ Nova kartica</button>
-        @for (card of column.cards; track card.id) {
-          <div class="card">
-            <strong>{{ card.title }}</strong>
-            @if (card.description) {
-              <p>{{ card.description }}</p>
-            }
-            <button type="button" class="edit-btn" (click)="editCard(column.id, card)">✏</button>
-            <button type="button" class="delete-btn" (click)="deleteCard(card.id)">🗑</button>
+@if (board(); as b) {
+  <div class="board">
+    @for (column of b.columns; track column.id; let i = $index) {
+      <div class="column" [class]="'col-' + (i % 3)">
+        <div class="column-head">
+          <h2 (click)="openColumnForm(column)">{{ column.title }}</h2>
+          <span class="count-tag">{{ column.cards.length }}</span>
+          <div class="column-actions">
+            <button class="icon-btn" (click)="openColumnForm(column)" title="Rename column">✎</button>
+            <button class="icon-btn danger" (click)="confirmDeleteColumn(column)" title="Delete column">✕</button>
           </div>
-        } @empty {
-          <p class="empty">Nema kartica.</p>
-        }
+        </div>
+
+        <div class="column-body">
+          @for (card of column.cards; track card.id) {
+            <div
+              class="ticket"
+              [class.conflict]="card.hasConflict"
+              [style.--tilt.deg]="tiltFor(card.id)"
+              (click)="openCardForm(card, column)"
+            >
+              <span class="ticket-id">{{ card.id.slice(0, 6) }}</span>
+              <h3>{{ card.title }}</h3>
+              @if (card.description) {
+                <p>{{ card.description }}</p>
+              }
+              <div class="ticket-footer">
+                <span class="ticket-stamp">{{ card.hasConflict ? 'CONFLICT' : (column.title | uppercase) }}</span>
+                <span class="ticket-version">v{{ card.version }}</span>
+              </div>
+              <div class="ticket-actions">
+                <button class="icon-btn danger" (click)="confirmDeleteCard(card, $event)" title="Delete card">✕</button>
+              </div>
+            </div>
+          }
+          <button class="add-ticket" (click)="openCardForm(null, column)">+ New ticket</button>
+        </div>
       </div>
-    } @empty {
-      <p>Board nema kolona.</p>
     }
+    <button class="add-column" (click)="openColumnForm(null)">+ New column</button>
   </div>
 }

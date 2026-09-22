@@ -7,7 +7,7 @@
   <p>{{ data.message }}</p>
 
   <div class="modal-actions">
-    <button type="button" (click)="cancel()">{{ data.cancelLabel ?? 'Otkaži' }}</button>
-    <button type="button" class="danger" (click)="confirm()">{{ data.confirmLabel ?? 'Obriši' }}</button>
+    <button type="button" class="btn-secondary" (click)="cancel()">{{ data.cancelLabel ?? 'Otkaži' }}</button>
+    <button type="button" class="btn-danger" (click)="confirm()">{{ data.confirmLabel ?? 'Obriši' }}</button>
   </div>
 </div>

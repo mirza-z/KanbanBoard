@@ -1,18 +1,28 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 
 import { BoardDetailApi } from '../../api-services/boards/board-api.model';
+
 import { ColumnForm } from './column-form/column-form';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { CardForm } from './card-form/card-form';
 import { CardApiService } from '../../api-services/cards/card-api-service';
 import { ColumnApiService } from '../../api-services/columns/column-api-service';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+import { CardApi } from '../../api-services/cards/card-api-model';
+import { ColumnApi } from '../../api-services/columns/column-api-model';
+import { DatePipe, UpperCasePipe } from '@angular/common';
+
+// hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
+// popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
+type CardWithConflict = CardApi & { hasConflict?: boolean };
+type ColumnWithConflictCards = Omit<ColumnApi, 'cards'> & { cards: CardWithConflict[] };
+type BoardViewModel = Omit<BoardDetailApi, 'columns'> & { columns: ColumnWithConflictCards[] };
 
 @Component({
   selector: 'app-board-view',
-  imports: [],
+  imports: [RouterLink,DatePipe, UpperCasePipe],
   templateUrl: './board-view.html',
   styleUrl: './board-view.scss'
 })
@@ -24,7 +34,7 @@ export class BoardView implements OnInit {
   private cardApi = inject(CardApiService);
 
   boardId = '';
-  board = signal<BoardDetailApi | null>(null);
+  board = signal<BoardViewModel | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
 
@@ -35,11 +45,27 @@ export class BoardView implements OnInit {
     this.load();
   }
 
+  tiltFor(id: string): number {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+    }
+    return ((hash % 300) / 100) - 1.5;
+  }
+
   load() {
     this.loading.set(true);
     this.boardApi.getById(this.boardId).subscribe({
       next: (board) => {
-        this.board.set(board);
+        // hasConflict inicijalno false dok se ne doda stvarna detekcija
+        const withConflict: BoardViewModel = {
+          ...board,
+          columns: board.columns.map(col => ({
+            ...col,
+            cards: col.cards.map(card => ({ ...card, hasConflict: false }))
+          }))
+        };
+        this.board.set(withConflict);
         this.loading.set(false);
       },
       error: () => {
@@ -49,25 +75,17 @@ export class BoardView implements OnInit {
     });
   }
 
-  openColumnForm() {
+  // Jedna metoda za create (column = null) i edit (postojeća kolona)
+  openColumnForm(column: ColumnApi | null) {
     const ref = this.dialog.open<string | undefined>(ColumnForm, {
-      data: { boardId: this.boardId }
-    });
-    ref.closed.subscribe((newId) => {
-      if (newId) this.load();
-    });
-  }
-
-  editColumn(column: { id: string; title: string }) {
-    const ref = this.dialog.open<string | undefined>(ColumnForm, {
-      data: { boardId: this.boardId, column }
+      data: column ? { boardId: this.boardId, column } : { boardId: this.boardId }
     });
     ref.closed.subscribe((result) => {
       if (result) this.load();
     });
   }
 
-  deleteColumn(columnId: string) {
+  confirmDeleteColumn(column: ColumnApi) {
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {
         title: 'Obriši kolonu',
@@ -78,32 +96,26 @@ export class BoardView implements OnInit {
     ref.closed.subscribe((confirmed) => {
       if (!confirmed) return;
 
-      this.columnApi.delete(columnId).subscribe({
+      this.columnApi.delete(column.id).subscribe({
         next: () => this.load(),
         error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
       });
     });
   }
 
-  openCardForm(columnId: string) {
+  // Jedna metoda za create (card = null) i edit (postojeća kartica)
+  openCardForm(card: CardWithConflict | null, column: ColumnApi) {
     const ref = this.dialog.open<{ id: string; version?: number } | undefined>(CardForm, {
-      data: { columnId }
+      data: card ? { columnId: column.id, card } : { columnId: column.id }
     });
     ref.closed.subscribe((result) => {
       if (result) this.load();
     });
   }
 
-  editCard(columnId: string, card: { id: string; title: string; description: string | null; version: number }) {
-    const ref = this.dialog.open<{ id: string; version?: number } | undefined>(CardForm, {
-      data: { columnId, card }
-    });
-    ref.closed.subscribe((result) => {
-      if (result) this.load();
-    });
-  }
-  
-  deleteCard(cardId: string) {
+  confirmDeleteCard(card: CardWithConflict, event: Event) {
+    event.stopPropagation(); // spriječi da klik na ✕ otvori i formu ispod
+
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {
         title: 'Obriši karticu',
@@ -114,7 +126,7 @@ export class BoardView implements OnInit {
     ref.closed.subscribe((confirmed) => {
       if (!confirmed) return;
 
-      this.cardApi.delete(cardId).subscribe({
+      this.cardApi.delete(card.id).subscribe({
         next: () => this.load(),
         error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
       });

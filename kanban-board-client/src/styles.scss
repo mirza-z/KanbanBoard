@@ -1,1 +1,63 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg: #14181D;
+  --surface: #1D242B;
+  --surface-line: #2A323B;
+  --paper: #E8E1D2;
+  --paper-shade: #DCD4C1;
+  --ink: #22262B;
+  --ink-soft: #55504A;
+  --text: #EDE6D6;
+  --text-dim: #9BA3AC;
+  --amber: #D98E04;
+  --amber-deep: #A66A03;
+  --teal: #3E7C79;
+  --rust: #A63D2F;
+ 
+  --font-display: 'Archivo Narrow', sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+ 
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  // faint blueprint grid across the whole app shell
+  background-image:
+    linear-gradient(var(--surface-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--surface-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-attachment: fixed;
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+}
+ 
+// Base button reset — CDK Dialog forms and board-view both use this
+button {
+  font-family: var(--font-body);
+}
+ 
+// Primary action button — reuse in BoardForm / ColumnForm / CardForm submit buttons
+.btn-primary {
+  background: var(--amber);
+  color: var(--ink);
+  border: none;
+  font-weight: 600;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.btn-primary:hover { background: var(--amber-deep); }
+ 
+.btn-secondary {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--surface-line);
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text-dim); }

@@ -1,21 +1,30 @@
-<h1>Boardovi</h1>
+<div class="page-header">
+  <h1>Boardovi</h1>
+  <button type="button" class="btn-primary" (click)="openCreateForm()">+ Novi board</button>
+</div>
 
 @if (loading()) {
-  <p>Učitavanje...</p>
+  <p class="status-line">Učitavanje...</p>
 } @else if (error()) {
-  <p class="error">{{ error() }}</p>
+  <p class="status-line error">{{ error() }}</p>
 } @else if (boards().length === 0) {
-  <p>Nema boardova.</p>
+  <p class="status-line">Nema boardova. Napravi prvi.</p>
 } @else {
-  <ul class="board-list">
-    @for (board of boards(); track board.id) {
-      <li>
-        <a [routerLink]="['/board', board.id]">{{ board.title }}</a>
-        <span class="owner">{{ board.ownerId }}</span>
-        <button type="button" class="edit-btn" (click)="editBoard(board, $event)">✏</button>
-        <button type="button" class="delete-btn" (click)="deleteBoard(board.id, $event)">🗑</button>
-      </li>
+  <div class="board-grid">
+    @for (board of boards(); track board.id; let i = $index) {
+      <div class="board-card" [class]="'col-' + (i % 3)">
+        <div class="board-card-actions">
+          <button type="button" class="icon-btn" (click)="editBoard(board, $event)" title="Uredi board">✎</button>
+          <button type="button" class="icon-btn danger" (click)="deleteBoard(board.id, $event)" title="Obriši board">✕</button>
+        </div>
+        <a class="board-card-link" [routerLink]="['/board', board.id]">
+          <span class="board-id">{{ board.id.slice(0, 6) }}</span>
+          <h2>{{ board.title }}</h2>
+          <div class="board-card-footer">
+            <span class="owner-stamp">{{ board.ownerId }}</span>
+          </div>
+        </a>
+      </div>
     }
-  </ul>
-  <button type="button" (click)="openCreateForm()">+ Novi board</button>
+  </div>
 }

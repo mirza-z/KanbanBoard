@@ -26,8 +26,8 @@
     }
 
     <div class="modal-actions">
-      <button type="button" (click)="close()">Otkaži</button>
-      <button type="submit" [disabled]="form.invalid || submitting()">
+      <button type="button" class="btn-secondary" (click)="close()">Otkaži</button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid || submitting()">
         {{ submitting() ? 'Čuvanje...' : 'Sačuvaj' }}
       </button>
     </div>

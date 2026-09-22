@@ -1,39 +1,276 @@
-.columns {
-  display: flex;
-  gap: 1rem;
+:host {
+  display: block;
+  padding: 28px;
   overflow-x: auto;
-}
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
-.column {
-  min-width: 250px;
-  background: #f4f4f4;
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.column-header { display: flex; justify-content: space-between; align-items: center; }
-
-.card {
-  background: white;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.card {
-  position: relative;
-
-  .delete-btn {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    opacity: 0.4;
-    font-size: 0.85rem;
-
-    &:hover { opacity: 1; }
+  &::-webkit-scrollbar {
+    display: none;
   }
+}
+
+.board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.board-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.back-link:hover {
+  color: var(--amber);
+}
+
+.board-header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.board-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;      // kolone padaju u novi red umjesto da guraju širinu
+  gap: 22px;
+  align-items: flex-start;
+  // min-width: max-content  <- ukloni ovu liniju, ona je uzrok overflow-a
+}
+.column {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--surface-line);
+}
+
+.column-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--surface-line);
+  position: relative;
+}
+
+// accent tab on top edge — color set per column via .col-0/.col-1/.col-2 below
+.column-head::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: -1px;
+  width: 34px;
+  height: 4px;
+  background: var(--col-accent, var(--teal));
+}
+
+.column-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin: 0;
+  flex: 1;
+  cursor: pointer;
+}
+
+.column-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.column:hover .column-actions { opacity: 1; }
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.icon-btn:hover { color: var(--amber); }
+.icon-btn.danger:hover { color: var(--rust); }
+
+.count-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  border: 1px solid var(--surface-line);
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.column-body {
+  padding: 16px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Rotate accent colors across columns. Apply by binding [class]="'col-' + (i % 3)"
+// on the .column element, where i is the column's index in the @for loop.
+.col-0 .column-head { --col-accent: var(--teal); }
+.col-1 .column-head { --col-accent: var(--amber); }
+.col-2 .column-head { --col-accent: #4C7A52; }
+
+.ticket {
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  padding: 14px 14px 14px 34px;
+  box-shadow: 5px 6px 0 rgba(0, 0, 0, 0.28);
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+.ticket:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.34);
+}
+
+// dashed perforation + tear-stub dots, mimicking a ticket stub
+.ticket::before {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: 6px;
+  bottom: 6px;
+  border-left: 1.5px dashed var(--ink-soft);
+  opacity: 0.55;
+}
+.ticket::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  transform: translateY(-50%);
+  box-shadow: 0 -22px 0 -1px var(--bg), 0 22px 0 -1px var(--bg);
+}
+
+.ticket-id {
+  position: absolute;
+  left: -30px;
+  top: 14px;
+  width: 26px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+  writing-mode: vertical-rl;
+  letter-spacing: 0.05em;
+}
+
+.ticket h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.94rem;
+  line-height: 1.3;
+}
+
+.ticket p {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+.ticket-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ticket-stamp {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--paper);
+  background: var(--amber-deep);
+  padding: 2px 7px;
+  letter-spacing: 0.02em;
+}
+
+.ticket-version {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+}
+
+// applied when card update/move returned a 409 (stale version)
+.ticket.conflict .ticket-stamp { background: var(--rust); }
+
+.ticket-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.ticket:hover .ticket-actions { opacity: 1; }
+.ticket-actions .icon-btn { color: var(--ink-soft); }
+.ticket-actions .icon-btn:hover { color: var(--amber-deep); }
+
+.add-ticket {
+  border: 1.5px dashed var(--surface-line);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.add-ticket:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+.add-column {
+  width: 300px;
+  flex-shrink: 0;
+  border: 1.5px dashed var(--surface-line);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 16px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.add-column:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
+@media (max-width: 640px) {
+  :host { padding: 16px; }
+  .column { width: 260px; }
 }
