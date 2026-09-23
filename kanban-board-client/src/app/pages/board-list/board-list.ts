@@ -8,11 +8,12 @@ import { BoardForm } from './board-form/board-form';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { GoogleSignin } from '../../core/auth/google-singin';
 import { AuthService } from '../../core/auth/auth.service';
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-board-list',
-  imports: [RouterLink],
+  imports: [RouterLink,  DatePipe],
   templateUrl: './board-list.html',
   styleUrl: './board-list.scss'
 })
@@ -39,7 +40,7 @@ export class BoardList implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Greška pri učitavanju boardova.');
+        this.error.set('Failed to load boards.');
         this.loading.set(false);
       }
     });
@@ -70,13 +71,13 @@ export class BoardList implements OnInit {
   }
 
   deleteBoard(boardId: string, event: Event) {
-    event.stopPropagation(); // spriječi da klik na dugme aktivira i routerLink navigaciju
+    event.stopPropagation(); 
     event.preventDefault();
 
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {
-        title: 'Obriši board',
-        message: 'Ovo će trajno obrisati board i sve kolone i kartice unutar njega. Da li si siguran?'
+        title: 'Delete board',
+        message: 'This will permanently delete the board and all its columns and cards. Are you sure?'
       }
     });
 
@@ -85,7 +86,7 @@ export class BoardList implements OnInit {
 
       this.boardApi.delete(boardId).subscribe({
         next: () => this.load(),
-        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+        error: () => alert('Delete failed. Please try again.')
       });
     });
   }

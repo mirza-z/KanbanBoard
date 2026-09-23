@@ -1,32 +1,37 @@
 <header class="list-header">
-  <span>{{ user()?.name }}</span>
-  <button type="button" (click)="logout()">Odjava</button>
+  <div class="brand"><i></i>Kanban Board</div>
+
+  <div class="account">
+    <span class="avatar" aria-hidden="true">{{ user()?.name?.charAt(0) }}</span>
+    <span class="account-name">{{ user()?.name }}</span>
+    <button type="button" class="signout" (click)="logout()">Sign out</button>
+  </div>
 </header>
 
 <div class="page-header">
-  <h1>Boardovi</h1>
-  <button type="button" class="btn-primary" (click)="openCreateForm()">+ Novi board</button>
+  <h1>Your boards</h1>
+  <button type="button" class="btn-primary" (click)="openCreateForm()">+ New board</button>
 </div>
 
 @if (loading()) {
-  <p class="status-line">Učitavanje...</p>
+  <p class="status-line">Loading...</p>
 } @else if (error()) {
   <p class="status-line error">{{ error() }}</p>
 } @else if (boards().length === 0) {
-  <p class="status-line">Nema boardova. Napravi prvi.</p>
+  <p class="status-line">No boards yet. Create your first one.</p>
 } @else {
   <div class="board-grid">
     @for (board of boards(); track board.id; let i = $index) {
       <div class="board-card" [class]="'col-' + (i % 3)">
         <div class="board-card-actions">
-          <button type="button" class="icon-btn" (click)="editBoard(board, $event)" title="Uredi board">✎</button>
-          <button type="button" class="icon-btn danger" (click)="deleteBoard(board.id, $event)" title="Obriši board">✕</button>
+          <button type="button" class="icon-btn" (click)="editBoard(board, $event)" title="Edit board">✎</button>
+          <button type="button" class="icon-btn danger" (click)="deleteBoard(board.id, $event)" title="Delete board">✕</button>
         </div>
         <a class="board-card-link" [routerLink]="['/board', board.id]">
-          <span class="board-id">{{ board.id.slice(0, 6) }}</span>
+          <span class="board-id">#{{ board.id.slice(0, 6) }}</span>
           <h2>{{ board.title }}</h2>
           <div class="board-card-footer">
-            <span class="owner-stamp">{{ board.ownerId }}</span>
+            <span class="created-stamp">Created {{ board.createdAt | date: 'MMM d, y' }}</span>
           </div>
         </a>
       </div>
