@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 
 import { BoardListItemApi } from '../../api-services/boards/board-api.model';
@@ -7,17 +7,21 @@ import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { BoardForm } from './board-form/board-form';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { GoogleSignin } from '../../core/auth/google-singin';
+import { AuthService } from '../../core/auth/auth.service';
 
 
 @Component({
   selector: 'app-board-list',
-  imports: [RouterLink, GoogleSignin],
+  imports: [RouterLink],
   templateUrl: './board-list.html',
   styleUrl: './board-list.scss'
 })
 export class BoardList implements OnInit {
   private boardApi = inject(BoardApiService);
   private dialog = inject(Dialog);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+  user = this.auth.user;
 
   boards = signal<BoardListItemApi[]>([]);
   loading = signal(true);
@@ -39,6 +43,11 @@ export class BoardList implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 
   openCreateForm() {

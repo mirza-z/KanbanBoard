@@ -1,4 +1,8 @@
-<app-google-signin />
+<header class="list-header">
+  <span>{{ user()?.name }}</span>
+  <button type="button" (click)="logout()">Odjava</button>
+</header>
+
 <div class="page-header">
   <h1>Boardovi</h1>
   <button type="button" class="btn-primary" (click)="openCreateForm()">+ Novi board</button>
