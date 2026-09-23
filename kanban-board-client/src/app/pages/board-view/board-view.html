@@ -7,6 +7,9 @@
     <div class="board-meta">
       OWNER {{ board()?.ownerId }} · CREATED {{ board()?.createdAt | date:'yyyy-MM-dd' }}
     </div>
+    <button type="button" class="btn-secondary" (click)="copyShareLink()">
+      {{ linkCopied() ? 'Kopirano ✓' : 'Kopiraj link' }}
+    </button>
   </div>
 
   <div class="board-actions">

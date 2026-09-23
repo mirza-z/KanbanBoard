@@ -48,6 +48,8 @@ export class BoardView implements OnInit {
   error = signal<string | null>(null);
   reorderMode = signal(false);
 
+  linkCopied = signal(false);
+
     constructor() {
     effect(() => {
       const changeCount = this.boardHub.boardChanged();
@@ -261,5 +263,17 @@ export class BoardView implements OnInit {
     if (event.previousIndex === event.currentIndex) return;
     moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     this.board.update(b => b ? { ...b } : b);
+  }
+
+  async copyShareLink() {
+    const url = `${location.origin}/board/${this.boardId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      this.linkCopied.set(true);
+      setTimeout(() => this.linkCopied.set(false), 2000);
+    } catch {
+      // clipboard API nije dostupan (npr. nesiguran kontekst), prikaži link ručno
+      prompt('Kopiraj link:', url);
+    }
   }
 }
