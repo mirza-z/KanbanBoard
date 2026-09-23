@@ -2,6 +2,7 @@ using FluentValidation;
 using KanbanBoardApi.Data;
 using KanbanBoardApi.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -9,7 +10,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string AngularDevPolicy = "AngularDev";
+const string FrontendPolicy = "Frontend";
+
+// Hosting platforms (Render etc.) tell the app which port to listen on via PORT
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 builder.Services.AddControllers();
 
@@ -29,7 +37,15 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 
-var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+if (jwtSettings is null
+    || string.IsNullOrWhiteSpace(jwtSettings.Secret)
+    || string.IsNullOrWhiteSpace(jwtSettings.Issuer)
+    || string.IsNullOrWhiteSpace(jwtSettings.Audience))
+{
+    throw new InvalidOperationException("Jwt:Secret, Jwt:Issuer and Jwt:Audience must be configured.");
+}
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -44,7 +60,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
         };
 
-        // Potrebno za SignalR: JWT dolazi kroz access_token query string na WS handshake-u
+        // Needed for SignalR: the JWT arrives as an access_token query string on the WS handshake
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -66,13 +82,25 @@ builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<IPresenceTracker, InMemoryPresenceTracker>();
 
+// Allowed frontend origins come from configuration (env var Cors__AllowedOrigins__0, __1, ...)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                     ?? new[] { "http://localhost:4200" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(AngularDevPolicy, policy => policy
-        .WithOrigins("http://localhost:4200")
+    options.AddPolicy(FrontendPolicy, policy => policy
+        .WithOrigins(allowedOrigins)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials());
+});
+
+// The hosting platform terminates TLS in front of the app and forwards the original scheme
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 builder.Services.AddHostedService<DemoResetService>();
@@ -80,23 +108,29 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.UseHttpsRedirection(); // in production the platform handles HTTPS
 }
 
 app.UseExceptionHandler();
-app.UseHttpsRedirection();
-app.UseCors(AngularDevPolicy);
+app.UseCors(FrontendPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<BoardHub>("/hubs/board");
 
+// Lightweight health check (does not touch the database)
+app.MapGet("/health", () => Results.Ok("ok"));
+
 using (var scope = app.Services.CreateScope())
 {
     var ctx = scope.ServiceProvider.GetRequiredService<KanbanDbContext>();
+    await ctx.Database.MigrateAsync();
     await DemoSeeder.SeedAsync(ctx);
 }
 
