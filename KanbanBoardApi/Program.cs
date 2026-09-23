@@ -93,4 +93,10 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<BoardHub>("/hubs/board");
 
+using (var scope = app.Services.CreateScope())
+{
+    var ctx = scope.ServiceProvider.GetRequiredService<KanbanDbContext>();
+    await DemoSeeder.SeedAsync(ctx);
+}
+
 app.Run();

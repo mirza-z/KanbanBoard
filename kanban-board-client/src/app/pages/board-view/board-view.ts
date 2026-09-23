@@ -16,6 +16,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { BoardHubService } from '../../api-services/shared/board-hub.service';
 import { fromEvent } from 'rxjs';
 import { sampleTime, map } from 'rxjs/operators';
+import { AuthService } from '../../core/auth/auth.service';
+import { GuestNameDialog } from '../../shared/guest-name-dialog/guest-name-dialog';
 
 // hasConflict nije (još) dio backend CardApi modela — čisto lokalno/UI polje,
 // popuniš ga kad dodaš SignalR/refetch logiku za konflikte.
@@ -37,6 +39,8 @@ export class BoardView implements OnInit {
   private cardApi = inject(CardApiService);
   boardHub = inject(BoardHubService);
   private boardContainerRef = viewChild.required<ElementRef<HTMLElement>>('boardContainer');
+  private auth = inject(AuthService);
+  private destroyed = false;
 
   boardId = '';
   board = signal<BoardViewModel | null>(null);
@@ -61,11 +65,26 @@ export class BoardView implements OnInit {
     if (!id) return;
     this.boardId = id;
     this.load();
-    this.boardHub.connect(this.boardId);
+    this.joinHub();
   }
 
-   ngOnDestroy() {
-    this.boardHub.disconnect();
+  ngOnDestroy() {
+      this.destroyed = true;
+      this.boardHub.disconnect();
+    }
+
+    private joinHub() {
+    if (this.auth.isAuthenticated() || this.boardHub.getGuestName()) {
+      this.boardHub.connect(this.boardId);
+      return;
+    }
+
+    const ref = this.dialog.open<string>(GuestNameDialog, { disableClose: true });
+    ref.closed.subscribe((name) => {
+      if (this.destroyed) return; 
+      if (name) this.boardHub.setGuestName(name);
+      this.boardHub.connect(this.boardId);
+    });
   }
 
   private setupCursorTracking() {
