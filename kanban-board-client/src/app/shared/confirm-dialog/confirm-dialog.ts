@@ -16,7 +16,7 @@ export interface ConfirmDialogData {
 })
 export class ConfirmDialog {
   data = inject<ConfirmDialogData>(DIALOG_DATA);
-  dialogRef = inject(DialogRef<boolean>); // vraća true ako je potvrđeno
+  dialogRef = inject(DialogRef<boolean>); 
 
   confirm() {
     this.dialogRef.close(true);

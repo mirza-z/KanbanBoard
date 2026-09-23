@@ -27,11 +27,11 @@ public static class DemoSeeder
             OwnerId = DemoOwnerId,
             CreatedAt = DateTime.UtcNow,
             Columns = new()
-            {
-                Col("To do", 0, "Otvori board u drugom tabu", "Prevuci karticu u drugu kolonu"),
-                Col("In progress", 1, "Pogledaj tuđi kursor uživo"),
-                Col("Done", 2, "Prijavi se preko Googlea")
-            }
+    {
+        Col("To do", 0, "Open this board in a second tab", "Drag a card to another column"),
+        Col("In progress", 1, "Watch another cursor move live"),
+        Col("Done", 2, "Sign in with Google")
+    }
         });
 
         await ctx.SaveChangesAsync();

@@ -25,7 +25,8 @@ export class GoogleSignin implements AfterViewInit {
     google.accounts.id.renderButton(this.buttonContainer().nativeElement, {
       type: 'standard',
       theme: 'outline',
-      size: 'large'
+      size: 'large',
+      width: 330
     });
   }
 }

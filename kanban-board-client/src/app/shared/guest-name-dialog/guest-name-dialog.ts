@@ -9,16 +9,16 @@ import { DialogRef } from '@angular/cdk/dialog';
   template: `
     <div class="modal-card">
       <div class="modal-header">
-        <h2>Kako da te zovemo?</h2>
+        <h2>What should we call you?</h2>
       </div>
       <form (submit)="$event.preventDefault(); submit()">
         <div class="field">
-          <label for="guestName">Tvoje ime</label>
+          <label for="guestName">Your name</label>
           <input id="guestName" type="text" [formControl]="name" maxlength="30" cdkFocusInitial />
         </div>
         <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="skip()">Preskoči</button>
-          <button type="submit" class="btn-primary" [disabled]="name.invalid">Uđi</button>
+          <button type="button" class="btn-secondary" (click)="skip()">Skip</button>
+          <button type="submit" class="btn-primary" [disabled]="name.invalid">Join</button>
         </div>
       </form>
     </div>

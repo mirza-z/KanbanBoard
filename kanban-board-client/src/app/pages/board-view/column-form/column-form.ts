@@ -63,11 +63,11 @@ export class ColumnForm {
     if (err.status === 400 && err.error?.errors) {
       this.serverErrors.set(err.error.errors);
     } else if (err.status === 409) {
-      this.conflictMessage.set('Kolona sa ovim naslovom već postoji na ovom boardu.');
+      this.conflictMessage.set('A column with this title already exists on this board.');
     } else if (err.status === 404) {
-      this.conflictMessage.set('Board nije pronađen.');
+      this.conflictMessage.set('Board not found.');
     } else {
-      this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
+      this.conflictMessage.set('Something went wrong. Please try again.');
     }
   }
 

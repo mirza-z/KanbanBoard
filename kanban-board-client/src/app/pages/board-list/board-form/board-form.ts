@@ -62,11 +62,11 @@ export class BoardForm {
     if (err.status === 400 && err.error?.errors) {
       this.serverErrors.set(err.error.errors);
     } else if (err.status === 409) {
-      this.conflictMessage.set('Board sa ovim naslovom već postoji.');
+      this.conflictMessage.set('A board with this title already exists.');
     } else if (err.status === 403) {
-      this.conflictMessage.set('Samo vlasnik može mijenjati ovaj board.');
+      this.conflictMessage.set('Only the owner can change this board.');
     } else {
-      this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
+      this.conflictMessage.set('Something went wrong. Please try again.');
     }
   }
 

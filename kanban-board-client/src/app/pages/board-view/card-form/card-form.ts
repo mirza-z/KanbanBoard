@@ -78,11 +78,11 @@ export class CardForm {
     if (err.status === 400 && err.error?.errors) {
       this.serverErrors.set(err.error.errors);
     } else if (err.status === 409) {
-      this.conflictMessage.set('Kartica je izmijenjena od nekog drugog u međuvremenu. Zatvori formu i osvježi board.');
+      this.conflictMessage.set('This card was changed by someone else in the meantime. Close the form and refresh the board.');
     } else if (err.status === 404) {
-      this.conflictMessage.set('Kartica ili kolona nije pronađena.');
+      this.conflictMessage.set('Card or column not found.');
     } else {
-      this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
+      this.conflictMessage.set('Something went wrong. Please try again.');
     }
   }
 

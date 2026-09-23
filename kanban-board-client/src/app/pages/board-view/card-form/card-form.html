@@ -1,12 +1,12 @@
 <div class="modal-card">
   <div class="modal-header">
-    <h2>{{ isEditMode ? 'Izmijeni karticu' : 'Nova kartica' }}</h2>
+    <h2>{{ isEditMode ? 'Edit card' : 'New card' }}</h2>
     <button type="button" (click)="close()">✕</button>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="field">
-      <label for="title">Naslov</label>
+      <label for="title">Title</label>
       <input id="title" type="text" formControlName="title" />
       @if (serverErrors()?.['Title']; as errs) {
         <div class="field-error">{{ errs[0] }}</div>
@@ -14,7 +14,7 @@
     </div>
 
     <div class="field">
-      <label for="description">Opis (opciono)</label>
+      <label for="description">Description (optional)</label>
       <textarea id="description" formControlName="description" rows="3"></textarea>
       @if (serverErrors()?.['Description']; as errs) {
         <div class="field-error">{{ errs[0] }}</div>
@@ -26,9 +26,9 @@
     }
 
     <div class="modal-actions">
-      <button type="button" (click)="close()">Otkaži</button>
+      <button type="button" (click)="close()">Cancel</button>
       <button type="submit" [disabled]="form.invalid || submitting()">
-        {{ submitting() ? 'Čuvanje...' : 'Sačuvaj' }}
+        {{ submitting() ? 'Saving...' : 'Save' }}
       </button>
     </div>
   </form>

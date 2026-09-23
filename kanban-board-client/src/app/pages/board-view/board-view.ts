@@ -120,7 +120,6 @@ export class BoardView implements OnInit {
     this.loading.set(true);
     this.boardApi.getById(this.boardId).subscribe({
       next: (board) => {
-        // hasConflict inicijalno false dok se ne doda stvarna detekcija
         const withConflict: BoardViewModel = {
           ...board,
           columns: board.columns.map(col => ({
@@ -132,13 +131,12 @@ export class BoardView implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Board nije pronađen.');
+        this.error.set('Board not found.');
         this.loading.set(false);
       }
     });
   }
 
-  // Jedna metoda za create (column = null) i edit (postojeća kolona)
   openColumnForm(column: ColumnApi | null) {
     const ref = this.dialog.open<string | undefined>(ColumnForm, {
       data: column ? { boardId: this.boardId, column } : { boardId: this.boardId }
@@ -151,8 +149,8 @@ export class BoardView implements OnInit {
   confirmDeleteColumn(column: ColumnApi) {
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {
-        title: 'Obriši kolonu',
-        message: 'Ovo će obrisati i sve kartice unutar kolone. Da li si siguran?'
+        title: 'Delete column',
+        message: 'This will also delete all cards in the column. Are you sure?'
       }
     });
 
@@ -161,7 +159,7 @@ export class BoardView implements OnInit {
 
       this.columnApi.delete(column.id).subscribe({
         next: () => this.load(),
-        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+        error: () => alert('Delete failed. Please try again.')
       });
     });
   }
@@ -181,8 +179,8 @@ export class BoardView implements OnInit {
 
     const ref = this.dialog.open<boolean>(ConfirmDialog, {
       data: {
-        title: 'Obriši karticu',
-        message: 'Da li si siguran da želiš obrisati ovu karticu?'
+        title: 'Delete card',
+        message: 'Are you sure you want to delete this card?'
       }
     });
 
@@ -191,7 +189,7 @@ export class BoardView implements OnInit {
 
       this.cardApi.delete(card.id).subscribe({
         next: () => this.load(),
-        error: () => alert('Brisanje nije uspjelo. Pokušaj ponovo.')
+        error: () => alert('Delete failed. Please try again.')
       });
     });
   }
@@ -252,7 +250,7 @@ export class BoardView implements OnInit {
     this.boardApi.reorderColumns(this.boardId, columnIds).subscribe({
       next: () => this.reorderMode.set(false),
       error: () => {
-        alert('Reorder nije uspio. Pokušaj ponovo.');
+        alert('Reordering failed. Please try again.');
         this.reorderMode.set(false);
         this.load();
       }
