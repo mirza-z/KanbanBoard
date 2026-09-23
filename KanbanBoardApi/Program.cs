@@ -75,6 +75,7 @@ builder.Services.AddCors(options =>
         .AllowCredentials());
 });
 
+builder.Services.AddHostedService<DemoResetService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

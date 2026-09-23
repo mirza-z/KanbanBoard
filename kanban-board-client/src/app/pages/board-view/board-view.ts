@@ -272,7 +272,6 @@ export class BoardView implements OnInit {
       this.linkCopied.set(true);
       setTimeout(() => this.linkCopied.set(false), 2000);
     } catch {
-      // clipboard API nije dostupan (npr. nesiguran kontekst), prikaži link ručno
       prompt('Kopiraj link:', url);
     }
   }

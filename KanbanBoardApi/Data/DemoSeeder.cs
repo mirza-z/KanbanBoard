@@ -36,4 +36,10 @@ public static class DemoSeeder
 
         await ctx.SaveChangesAsync();
     }
+
+    public static async Task ResetAsync(KanbanDbContext ctx, CancellationToken ct = default)
+    {
+        await ctx.Boards.Where(b => b.Id == DemoBoardId).ExecuteDeleteAsync(ct);
+        await SeedAsync(ctx);
+    }
 }
