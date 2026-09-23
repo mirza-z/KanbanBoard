@@ -6,11 +6,12 @@ import { BoardListItemApi } from '../../api-services/boards/board-api.model';
 import { BoardApiService } from '../../api-services/boards/board-api-service';
 import { BoardForm } from './board-form/board-form';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+import { GoogleSignin } from '../../core/auth/google-singin';
 
 
 @Component({
   selector: 'app-board-list',
-  imports: [RouterLink],
+  imports: [RouterLink, GoogleSignin],
   templateUrl: './board-list.html',
   styleUrl: './board-list.scss'
 })
