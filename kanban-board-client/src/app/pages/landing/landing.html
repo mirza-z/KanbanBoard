@@ -1,0 +1,53 @@
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><i></i>Kanban Board</div>
+    <a href="https://github.com/mirza-z/KanbanBoard" target="_blank" rel="noopener">Source on GitHub</a>
+  </header>
+
+  <main class="hero">
+    <section>
+      <h1>A board everyone edits at the same time.</h1>
+      <p class="lead">
+        Create a board, send the link, and watch cards move and cursors travel live.
+        Guests don't need an account.
+      </p>
+
+      <div class="ticket">
+        <div class="stub"><span>SIGN-IN #001</span></div>
+        <h2>Sign in and create your board</h2>
+        <p>Signing in gives you a list of your boards. Anyone who opens your link joins as a guest.</p>
+        <div class="gsi">
+          <app-google-signin />
+        </div>
+        <a class="demo" [routerLink]="['/board', demoBoardId]">Try a demo board, no sign-in</a>
+      </div>
+    </section>
+
+    <section class="board" aria-label="Example board">
+      <div class="cols">
+        @for (col of columns; track col.title) {
+          <div class="col">
+            <h3>{{ col.title }} <em>{{ col.cards.length }}</em></h3>
+            @for (card of col.cards; track card.id) {
+              <div class="card" [class.hot]="card.hot" [style.--r]="card.tilt + 'deg'">
+                <b>{{ card.id }}</b>{{ card.text }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @for (c of cursors; track c.name) {
+        <div class="cursor" [style.--c]="c.color" [style.left]="c.left" [style.top]="c.top" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 2l17 8-7 2-3 7z" /></svg>
+          <span>{{ c.name }}</span>
+        </div>
+      }
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>The free server sleeps when idle, so the first load can take about a minute.</span>
+    <a href="https://github.com/mirza-z/KanbanBoard#readme" target="_blank" rel="noopener">How it's built</a>
+  </footer>
+</div>
