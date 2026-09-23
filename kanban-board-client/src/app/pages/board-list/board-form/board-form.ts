@@ -8,7 +8,6 @@ export interface BoardFormData {
   board?: {
     id: string;
     title: string;
-    ownerId: string;
   };
 }
 
@@ -28,7 +27,6 @@ export class BoardForm {
 
   form = this.fb.nonNullable.group({
     title: [this.data.board?.title ?? '', [Validators.required, Validators.maxLength(100)]],
-    ownerId: [{ value: this.data.board?.ownerId ?? '', disabled: this.isEditMode }, [Validators.required, Validators.maxLength(100)]],
   });
 
   submitting = signal(false);
@@ -42,7 +40,7 @@ export class BoardForm {
     this.serverErrors.set(null);
     this.conflictMessage.set(null);
 
-    const title = this.form.getRawValue().title;
+    const { title } = this.form.getRawValue();
 
     if (this.isEditMode) {
       const board = this.data.board!;
@@ -51,20 +49,22 @@ export class BoardForm {
         error: (err: HttpErrorResponse) => this.handleError(err)
       });
     } else {
-      const ownerId = this.form.getRawValue().ownerId;
-      this.boardApi.create({ title, ownerId }).subscribe({
+      this.boardApi.create({ title }).subscribe({
         next: (id) => this.dialogRef.close(id),
         error: (err: HttpErrorResponse) => this.handleError(err)
       });
     }
   }
 
+
   private handleError(err: HttpErrorResponse) {
     this.submitting.set(false);
     if (err.status === 400 && err.error?.errors) {
       this.serverErrors.set(err.error.errors);
     } else if (err.status === 409) {
-      this.conflictMessage.set('Board sa ovim naslovom i vlasnikom već postoji.');
+      this.conflictMessage.set('Board sa ovim naslovom već postoji.');
+    } else if (err.status === 403) {
+      this.conflictMessage.set('Samo vlasnik može mijenjati ovaj board.');
     } else {
       this.conflictMessage.set('Nešto je pošlo po zlu. Pokušaj ponovo.');
     }

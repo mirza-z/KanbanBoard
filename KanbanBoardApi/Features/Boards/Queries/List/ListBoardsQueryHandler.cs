@@ -11,6 +11,7 @@ namespace KanbanBoardApi.Features.Boards.Queries.List
        ListBoardsQuery request, CancellationToken ct)
         {
             var q = ctx.Boards.AsNoTracking();
+            q = q.Where(b => b.OwnerId == request.OwnerId);
 
             var searchTerm = request.Search?.Trim().ToLower() ?? string.Empty;
 

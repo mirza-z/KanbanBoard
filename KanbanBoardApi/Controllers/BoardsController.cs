@@ -6,6 +6,7 @@ using KanbanBoardApi.Features.Boards.Queries.List;
 using KanbanBoardApi.Features.Columns.Commands.Reorder;
 using KanbanBoardApi.Features.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KanbanBoardApi.Controllers
@@ -14,19 +15,24 @@ namespace KanbanBoardApi.Controllers
     [Route("api/[controller]")]
     public class BoardsController(IMediator mediator) : ControllerBase
     {
+
         //create
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateBoard([FromBody] CreateBoardCommand command, CancellationToken ct)
         {
+            command.OwnerId = User.GetOwnerId(); // prepisuje sve što klijent pošalje
             var boardId = await mediator.Send(command, ct);
             return CreatedAtAction(nameof(GetBoardById), new { id = boardId }, boardId);
         }
 
         //update
         [HttpPut("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, UpdateBoardCommand command, CancellationToken ct)
         {
             command.Id = id;
+            command.RequesterId = User.GetOwnerId();
             await mediator.Send(command, ct);
             return NoContent();
         }
@@ -42,9 +48,10 @@ namespace KanbanBoardApi.Controllers
 
         //delete
         [HttpDelete("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         {
-            await mediator.Send(new DeleteBoardCommand { Id = id }, ct);
+            await mediator.Send(new DeleteBoardCommand { Id = id, RequesterId = User.GetOwnerId() }, ct);
             return NoContent();
         }
 
@@ -59,10 +66,11 @@ namespace KanbanBoardApi.Controllers
 
         //getAll
         [HttpGet]
+        [Authorize]
         public async Task<PageResult<ListBoardsQueryDto>> List([FromQuery] ListBoardsQuery query, CancellationToken ct)
         {
-            var result = await mediator.Send(query, ct);
-            return result;
+            query.OwnerId = User.GetOwnerId();
+            return await mediator.Send(query, ct);
         }
     }
 }

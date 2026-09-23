@@ -13,6 +13,10 @@ public class DeleteBoardCommandHandler(KanbanDbContext ctx): IRequestHandler<Del
 
         if (board is null) { throw new NotFoundException("Board not found"); }
 
+        if (board.OwnerId != request.RequesterId)
+            throw new ForbiddenException("Only the board owner can do this.");
+
+
         ctx.Boards.Remove(board);
         await ctx.SaveChangesAsync(cancellationToken);
 

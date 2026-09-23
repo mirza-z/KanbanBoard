@@ -13,14 +13,6 @@
       }
     </div>
 
-    <div class="field">
-      <label for="ownerId">Vlasnik</label>
-      <input id="ownerId" type="text" formControlName="ownerId" />
-      @if (serverErrors()?.['OwnerId']; as errs) {
-        <div class="field-error">{{ errs[0] }}</div>
-      }
-    </div>
-
     @if (conflictMessage()) {
       <div class="field-error">{{ conflictMessage() }}</div>
     }

@@ -13,16 +13,16 @@ namespace KanbanBoardApi.Features.Boards.Commands.Create
             var title = request.Title.Trim();
             var titleLower = title.ToLower();
 
-            var exists = await ctx.Boards.AnyAsync(x => x.Title == titleLower && x.OwnerId == request.OwnerId,ct);
+            var exists = await ctx.Boards.AnyAsync(
+                x => x.OwnerId == request.OwnerId && x.Title.ToLower() == titleLower, ct);
             if (exists)
-            {
                 throw new ConflictException("This Board already exists");
-            }
+
             var board = new Board
             {
                 Id = Guid.NewGuid(),
                 OwnerId = request.OwnerId,
-                Title = request.Title,
+                Title = title,            
                 CreatedAt = DateTime.UtcNow,
                 Columns = new()
             };

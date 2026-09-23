@@ -18,7 +18,6 @@ export interface BoardDetailApi {
 
 export interface CreateBoardRequest {
   title: string;
-  ownerId: string;
 }
 
 export interface UpdateBoardRequest {

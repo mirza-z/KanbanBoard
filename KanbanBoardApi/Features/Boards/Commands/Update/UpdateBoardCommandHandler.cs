@@ -15,6 +15,10 @@ public sealed class UpdateBoardCommandHandler(KanbanDbContext ctx) : IRequestHan
         if (entity is null)
             throw new NotFoundException($"Board (ID={request.Id}) nije pronađena.");
 
+        if (entity.OwnerId != request.RequesterId)
+            throw new ForbiddenException("Only the board owner can do this.");
+
+
         var title = request.Title.Trim();
         var titleLower = title.ToLower();
 
