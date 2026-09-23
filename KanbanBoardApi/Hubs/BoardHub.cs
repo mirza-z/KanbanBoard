@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace KanbanBoardApi.Hubs;
 
@@ -17,31 +18,43 @@ public class BoardHub : Hub
         _presence = presence;
     }
 
-    public async Task JoinBoard(Guid boardId)
+    public async Task JoinBoard(Guid boardId, string? guestName = null)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(boardId));
 
         var color = Palette[Math.Abs(Context.ConnectionId.GetHashCode()) % Palette.Length];
-        var displayName = $"Guest {Random.Shared.Next(100, 999)}";
+        var displayName = ResolveDisplayName(guestName);
         var info = new PresenceInfo(boardId, color, displayName);
 
-        // snimi listu PRIJE nego dodaš sebe, da se ne uključiš u sopstveni snapshot
         var existing = _presence.GetByBoard(boardId).ToList();
 
         _presence.Add(Context.ConnectionId, info);
 
-        // reci novom ko sam ja
         await Clients.Caller.SendAsync("UserJoined", Context.ConnectionId, color, displayName, true);
 
-        // pošalji novom snapshot svih koji su već tu
         foreach (var (connId, existingInfo) in existing)
         {
             await Clients.Caller.SendAsync("UserJoined", connId, existingInfo.Color, existingInfo.DisplayName, false);
         }
 
-        // javi ostalima da je novi stigao
         await Clients.OthersInGroup(GroupName(boardId))
             .SendAsync("UserJoined", Context.ConnectionId, color, displayName, false);
+    }
+
+    private string ResolveDisplayName(string? guestName)
+    {
+        if (Context.User?.Identity?.IsAuthenticated == true)
+        {
+            var name = Context.User.FindFirst("name")?.Value
+                       ?? Context.User.FindFirst(ClaimTypes.Name)?.Value;
+            if (!string.IsNullOrWhiteSpace(name)) return name;
+        }
+
+        var cleaned = guestName?.Trim();
+        if (!string.IsNullOrEmpty(cleaned))
+            return cleaned.Length > 30 ? cleaned[..30] : cleaned;
+
+        return $"Guest {Random.Shared.Next(100, 999)}";
     }
 
     public async Task LeaveBoard(Guid boardId)

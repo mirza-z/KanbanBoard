@@ -1,6 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../../environments/environments';
+import { AuthService } from '../../core/auth/auth.service';
+
+const GUEST_NAME_KEY = 'kanban_guest_name';
 
 export interface CursorUser {
   connectionId: string;
@@ -12,6 +15,7 @@ export interface CursorUser {
 
 @Injectable({ providedIn: 'root' })
 export class BoardHubService {
+  private auth = inject(AuthService);
   private connection: signalR.HubConnection | null = null;
   private currentBoardId: string | null = null;
 
@@ -21,11 +25,25 @@ export class BoardHubService {
 
   private hubUrl = environment.apiUrl.replace(/\/api\/?$/, '') + '/hubs/board';
 
-  async connect(boardId: string): Promise<void> {
+    getGuestName(): string | null {
+        return localStorage.getItem(GUEST_NAME_KEY);
+      }
+    setGuestName(name: string) {
+      localStorage.setItem(GUEST_NAME_KEY, name.trim());
+    }
+
+    private joinBoard(boardId: string) {
+      return this.connection?.invoke('JoinBoard', boardId, this.getGuestName());
+    }
+
+
+    async connect(boardId: string): Promise<void> {
     this.currentBoardId = boardId;
 
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(this.hubUrl)
+      .withUrl(this.hubUrl, {
+        accessTokenFactory: () => this.auth.getToken() ?? ''
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -36,13 +54,11 @@ export class BoardHubService {
     this.registerPresenceHandlers(); // registruj PRIJE start(), da ne promašiš prvi UserJoined
 
     this.connection.onreconnected(() => {
-      if (this.currentBoardId) {
-        this.connection?.invoke('JoinBoard', this.currentBoardId);
-      }
+      if (this.currentBoardId) this.joinBoard(this.currentBoardId);
     });
 
     await this.connection.start();
-    await this.connection.invoke('JoinBoard', boardId);
+    await this.joinBoard(boardId);
   }
 
   async disconnect(): Promise<void> {
