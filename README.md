@@ -1,26 +1,26 @@
 # Kanban Board
 
-A real-time collaborative kanban board built to demonstrate CQRS, optimistic concurrency, and live multiplayer sync — the kind of problems a real team tool actually has to solve, not just another CRUD app.
+A real-time collaborative kanban board built to demonstrate CQRS, optimistic concurrency, and live multiplayer sync, the kind of problems a real team tool actually has to solve, not just another CRUD app.
 
-**[Live Demo](https://kanbanbrr.netlify.app/)** · **[Try the demo board](https://kanbanbrr.netlify.app/board/a1b2c3d4-0000-4000-8000-000000000001)** — no sign-in required
+**[Live Demo](https://kanbanbrr.netlify.app/)** · **[Try the demo board](https://kanbanbrr.netlify.app/board/a1b2c3d4-0000-4000-8000-000000000001)** no sign-in required
 
 ![Board view with live cursors](docs/images/LiveCursor.png)
 
 ## What this is
 
-A Trello-style board where multiple people can open the same board, drag cards around, edit them, and see each other's changes and cursors instantly — including what happens when two people edit the same card at the same time.
+A Trello-style board where multiple people can open the same board, drag cards around, edit them, and see each other's changes and cursors instantly, including what happens when two people edit the same card at the same time.
 
 Built as a portfolio project, so the README leads with the interesting engineering decisions rather than a feature list. The "war story" is optimistic concurrency: see [Handling Concurrent Edits](#handling-concurrent-edits-the-core-problem) below.
 
 ## Features
 
-- **Boards, columns, cards** — full CRUD, drag-and-drop reordering and moving between columns
-- **Real-time sync** — every client sees changes from other users instantly via SignalR
-- **Live cursors & presence** — see who else is viewing the board and where their cursor is
-- **Optimistic concurrency control** — conflicting edits are rejected with a clear message instead of silently overwriting each other
-- **Auth** — Google OAuth for board owners, anonymous guests via share link
-- **Guest collaboration** — anyone with a share link can join and edit without creating an account
-- **Demo board** — a public, always-available board so reviewers don't need to sign in
+- **Boards, columns, cards** - full CRUD, drag-and-drop reordering and moving between columns
+- **Real-time sync** - every client sees changes from other users instantly via SignalR
+- **Live cursors & presence** - see who else is viewing the board and where their cursor is
+- **Optimistic concurrency control** - conflicting edits are rejected with a clear message instead of silently overwriting each other
+- **Auth** - Google OAuth for board owners, anonymous guests via share link
+- **Guest collaboration** - anyone with a share link can join and edit without creating an account
+- **Demo board** - a public, always-available board so reviewers don't need to sign in
 
 ## Tech Stack
 
